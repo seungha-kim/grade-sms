@@ -1,0 +1,15 @@
+.wrap {
+  display: flex;
+  align-items: flex-end;
+}
+
+.queried {
+  margin-bottom: 12px;
+  color: #9e9e9e;
+  margin-left: 20px;
+}
+
+.progress {
+  margin-bottom: 12px;
+  margin-left: 20px;
+}

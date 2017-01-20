@@ -1,0 +1,12 @@
+.wrap {
+  flex-grow: 1;
+  padding: 0 30px;
+}
+.content {
+  flex-grow: 1;
+}
+.buttons {
+  margin-top: 30px;
+  display: flex;
+  justify-content: flex-end;
+}
