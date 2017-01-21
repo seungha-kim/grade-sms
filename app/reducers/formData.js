@@ -43,7 +43,7 @@ const initialState = I.Map({
   idRange: newRangeField(),
   phoneRange: newRangeField(),
   testRangeSets: I.List.of(newTestRangeFieldSet()),
-  homeworkRangeSets: I.List()
+  homeworkRanges: I.List()
 });
 
 function updateByInstanceKey(state, fieldKey, updateFunction) {
@@ -65,16 +65,11 @@ function updateByInstanceKey(state, fieldKey, updateFunction) {
           fields.map(rangeField => (
             rangeField.get('fieldKey') === fieldKey
             ? rangeField.update(updateFunction)
-            : rangeField))
-        )))
-    .update('homeworkRangeSets', rangeSets =>
-      rangeSets.map(rangeSet =>
-        rangeSet.update('fields', fields =>
-          fields.map(rangeField => (
-            rangeField.get('fieldKey') === fieldKey
-            ? rangeField.update(updateFunction)
-            : rangeField))
-        )));
+            : rangeField)))))
+    .update('homeworkRanges', rangeField => (
+      rangeField.get('fieldKey') === fieldKey
+        ? rangeField.update(updateFunction)
+        : rangeField));
 }
 
 export default function xlsx(state = initialState, action) {
@@ -104,6 +99,10 @@ export default function xlsx(state = initialState, action) {
       return state.update('testRangeSets', trl => trl.push(newTestRangeFieldSet()));
     case REMOVE_TEST:
       return state.update('testRangeSets', trl => trl.filter(f => f.get('setKey') !== payload));
+    case ADD_HOMEWORK:
+      return state.update('homeworkRanges', r => r.push(newRangeField()));
+    case REMOVE_HOMEWORK:
+      return state.update('homeworkRanges', hr => hr.filter(f => f.get('fieldKey') !== payload));
     default:
       return state;
   }

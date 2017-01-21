@@ -92,8 +92,6 @@ function updateRangePreview(fieldKey, queried) {
   };
 }
 
-// updateRange: (fieldKey, key, value) => void
-// controlled input update + async preview
 export function updateRangeThunk(fieldKey: string, range: string) {
   return (dispatch) => {
     dispatch(updateRange(fieldKey, range));
@@ -125,14 +123,15 @@ export function removeTest(fieldKey) {
   };
 }
 
-  // addTest = () => {
-  //   this.setState({
-  //     testRanges: this.state.testRanges.concat([newTestData()])
-  //   });
-  // }
+export function addHomework() {
+  return {
+    type: ADD_HOMEWORK
+  };
+}
 
-  // addHomework = () => {
-  //   this.setState({
-  //     homeworkRanges: this.state.homeworkRanges.concat([newFieldData()])
-  //   });
-  // }
+export function removeHomework(fieldKey) {
+  return {
+    type: REMOVE_HOMEWORK,
+    payload: fieldKey
+  };
+}

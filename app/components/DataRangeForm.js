@@ -8,12 +8,14 @@ import DataRangeField from './DataRangeField';
 type Props = {
   formData: IMap<string, any>,
   filePath: string,
-  onError: string => void,
+  onError: (string) => void,
   nextStep: () => void,
   previousStep: () => void,
   updateRangeThunk: (string, string) => void,
   addTest: () => void,
-  removeTest: string => void
+  removeTest: (string) => void,
+  addHomework: () => void,
+  removeHomework: (string) => void
 };
 
 const buttonStyle = {
@@ -37,7 +39,9 @@ export default class DataRangeForm extends Component {
       previousStep,
       updateRangeThunk,
       addTest,
-      removeTest
+      removeTest,
+      addHomework,
+      removeHomework
     } = this.props;
     // onError('haha');
     return (
@@ -92,10 +96,22 @@ export default class DataRangeForm extends Component {
               />
             </div>)}
           </div>
+          <div>
+            {formData.get('homeworkRanges').map((field, i) => <div key={field.get('fieldKey')}>
+              <div>숙제 {i + 1}</div>
+              <RaisedButton secondary label="삭제" onClick={() => removeHomework(field.get('fieldKey'))} />
+              <DataRangeField
+                hintText={rangeHintText}
+                floatingLabelText="숙제 점수"
+                fieldData={field}
+                updateRangeThunk={updateRangeThunk}
+              />
+            </div>)}
+          </div>
         </div>
         <div className={s.buttons}>
           <RaisedButton label="시험 추가" onClick={addTest} style={buttonStyle} />
-          <RaisedButton label="숙제 추가" style={buttonStyle} />
+          <RaisedButton label="숙제 추가" onClick={addHomework} style={buttonStyle} />
           <RaisedButton label="뒤로" secondary onClick={previousStep} style={buttonStyle} />
           <RaisedButton label="다음" primary disabled onClick={nextStep} style={buttonStyle} />
         </div>
