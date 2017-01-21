@@ -1,13 +1,15 @@
-// @flow
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import DataRangeForm from '../components/DataRangeForm';
 import { newError } from '../actions/errorMessage';
 import { nextStep, previousStep } from '../actions/step';
-import { queryDataRange } from '../actions/xlsx';
+import { updateRangeThunk } from '../actions/formData';
 
-function mapStateToProps() {
-  return { queryDataRange };
+function mapStateToProps({ formData }) {
+  return {
+    formData,
+    filePath: formData.get('filePath')
+  };
 }
 
 function mapDispatchToProps(dispatch) {
@@ -15,6 +17,7 @@ function mapDispatchToProps(dispatch) {
     onError: newError,
     nextStep,
     previousStep,
+    updateRangeThunk,
   }, dispatch);
 }
 

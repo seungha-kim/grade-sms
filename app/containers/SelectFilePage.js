@@ -4,12 +4,12 @@ import { connect } from 'react-redux';
 import SelectFileForm from '../components/SelectFileForm';
 // import { showOpenDialog } from '../actions/xlsx';
 import { newError } from '../actions/errorMessage';
-import { showOpenDialog } from '../actions/xlsx';
+import { showOpenDialog } from '../actions/formData';
 import { nextStep } from '../actions/step';
 
-function mapStateToProps({ xlsx }) {
+function mapStateToProps({ formData }) {
   return {
-    filePath: xlsx
+    filePath: formData.get('filePath')
   };
 }
 
