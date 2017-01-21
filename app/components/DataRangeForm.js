@@ -11,7 +11,9 @@ type Props = {
   onError: string => void,
   nextStep: () => void,
   previousStep: () => void,
-  updateRangeThunk: (string, string) => string
+  updateRangeThunk: (string, string) => void,
+  addTest: () => void,
+  removeTest: string => void
 };
 
 const buttonStyle = {
@@ -27,7 +29,16 @@ export default class DataRangeForm extends Component {
   props: Props;
 
   render() {
-    const { formData, filePath, onError, nextStep, previousStep, updateRangeThunk } = this.props;
+    const {
+      formData,
+      filePath,
+      // onError,
+      nextStep,
+      previousStep,
+      updateRangeThunk,
+      addTest,
+      removeTest
+    } = this.props;
     // onError('haha');
     return (
       <div className={s.wrap}>
@@ -58,8 +69,9 @@ export default class DataRangeForm extends Component {
             updateRangeThunk={updateRangeThunk}
           />
           <div>
-            {formData.get('testRangeSets').map((fieldSet, i) => <div key={fieldSet.get('key')}>
+            {formData.get('testRangeSets').map((fieldSet, i) => <div key={fieldSet.get('setKey')}>
               <div>시험 {i + 1}</div>
+              <RaisedButton secondary label="삭제" onClick={() => removeTest(fieldSet.get('setKey'))} />
               <DataRangeField
                 hintText={rangeHintText}
                 floatingLabelText="반"
@@ -82,7 +94,7 @@ export default class DataRangeForm extends Component {
           </div>
         </div>
         <div className={s.buttons}>
-          <RaisedButton label="시험 추가" style={buttonStyle} />
+          <RaisedButton label="시험 추가" onClick={addTest} style={buttonStyle} />
           <RaisedButton label="숙제 추가" style={buttonStyle} />
           <RaisedButton label="뒤로" secondary onClick={previousStep} style={buttonStyle} />
           <RaisedButton label="다음" primary disabled onClick={nextStep} style={buttonStyle} />

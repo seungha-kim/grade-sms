@@ -18,11 +18,11 @@ const defaultRangeField = I.Map({
   errorText: null,
   queried: null,
   loading: false,
-  instanceKey: null
+  fieldKey: null
 });
 
 function newRangeField() {
-  return defaultRangeField.set('instanceKey', Math.random());
+  return defaultRangeField.set('fieldKey', Math.random());
 }
 
 function newTestRangeFieldSet() {
@@ -32,7 +32,7 @@ function newTestRangeFieldSet() {
       attendance: newRangeField(),
       grade: newRangeField(),
     }),
-    key: Math.random()
+    setKey: Math.random()
   });
 }
 
@@ -46,7 +46,7 @@ const initialState = I.Map({
   homeworkRangeSets: I.List()
 });
 
-function updateByInstanceKey(state, instanceKey, updateFunction) {
+function updateByInstanceKey(state, fieldKey, updateFunction) {
   let intermediate = state;
   [
     'nameRange',
@@ -54,7 +54,7 @@ function updateByInstanceKey(state, instanceKey, updateFunction) {
     'idRange',
     'phoneRange'
   ].forEach(fieldName => {
-    if (intermediate.get(fieldName).get('instanceKey') === instanceKey) {
+    if (intermediate.get(fieldName).get('fieldKey') === fieldKey) {
       intermediate = intermediate.update(fieldName, updateFunction);
     }
   });
@@ -63,7 +63,7 @@ function updateByInstanceKey(state, instanceKey, updateFunction) {
       rangeSets.map(rangeSet =>
         rangeSet.update('fields', fields =>
           fields.map(rangeField => (
-            rangeField.get('instanceKey') === instanceKey
+            rangeField.get('fieldKey') === fieldKey
             ? rangeField.update(updateFunction)
             : rangeField))
         )))
@@ -71,7 +71,7 @@ function updateByInstanceKey(state, instanceKey, updateFunction) {
       rangeSets.map(rangeSet =>
         rangeSet.update('fields', fields =>
           fields.map(rangeField => (
-            rangeField.get('instanceKey') === instanceKey
+            rangeField.get('fieldKey') === fieldKey
             ? rangeField.update(updateFunction)
             : rangeField))
         )));
@@ -83,19 +83,19 @@ export default function xlsx(state = initialState, action) {
     case SELECT_FILE:
       return state.set('filePath', payload);
     case UPDATE_RANGE:
-      return updateByInstanceKey(state, payload.instanceKey, field => (
+      return updateByInstanceKey(state, payload.fieldKey, field => (
         field
           .set('range', payload.range)
           .set('loading', true)
       ));
     case UPDATE_RANGE_PREVIEW:
-      return updateByInstanceKey(state, payload.instanceKey, field => (
+      return updateByInstanceKey(state, payload.fieldKey, field => (
         field
           .set('queried', payload.queried)
           .set('loading', false)
       ));
     case UPDATE_RANGE_ERROR:
-      return updateByInstanceKey(state, payload.instanceKey, field => (
+      return updateByInstanceKey(state, payload.fieldKey, field => (
         field
           .set('errorText', payload.errorText)
           .set('loading', false)
@@ -103,7 +103,7 @@ export default function xlsx(state = initialState, action) {
     case ADD_TEST:
       return state.update('testRangeSets', trl => trl.push(newTestRangeFieldSet()));
     case REMOVE_TEST:
-      return state.update('testRangeSets', trl => trl.filter(f => f.get('instanceKey') !== payload));
+      return state.update('testRangeSets', trl => trl.filter(f => f.get('setKey') !== payload));
     default:
       return state;
   }

@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import DataRangeForm from '../components/DataRangeForm';
 import { newError } from '../actions/errorMessage';
 import { nextStep, previousStep } from '../actions/step';
-import { updateRangeThunk } from '../actions/formData';
+import { updateRangeThunk, addTest, removeTest } from '../actions/formData';
 
 function mapStateToProps({ formData }) {
   return {
@@ -18,6 +18,8 @@ function mapDispatchToProps(dispatch) {
     nextStep,
     previousStep,
     updateRangeThunk,
+    addTest,
+    removeTest
   }, dispatch);
 }
 

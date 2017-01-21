@@ -62,31 +62,31 @@ function queryDataRange(rangeString: string) {
   return [JSON.stringify(leftValue), JSON.stringify(rightValue)];
 }
 
-function updateRange(instanceKey, range) {
+function updateRange(fieldKey, range) {
   return {
     type: UPDATE_RANGE,
     payload: {
-      instanceKey,
+      fieldKey,
       range
     }
   };
 }
 
-function updateRangeError(instanceKey, errorText) {
+function updateRangeError(fieldKey, errorText) {
   return {
     type: UPDATE_RANGE_ERROR,
     payload: {
-      instanceKey,
+      fieldKey,
       errorText
     }
   };
 }
 
-function updateRangePreview(instanceKey, queried) {
+function updateRangePreview(fieldKey, queried) {
   return {
     type: UPDATE_RANGE_PREVIEW,
     payload: {
-      instanceKey,
+      fieldKey,
       queried
     }
   };
@@ -94,21 +94,34 @@ function updateRangePreview(instanceKey, queried) {
 
 // updateRange: (fieldKey, key, value) => void
 // controlled input update + async preview
-export function updateRangeThunk(instanceKey: string, range: string) {
+export function updateRangeThunk(fieldKey: string, range: string) {
   return (dispatch) => {
-    dispatch(updateRange(instanceKey, range));
-    if (debounced[instanceKey] == null) {
-      debounced[instanceKey] = debounce((r: string) => {
+    dispatch(updateRange(fieldKey, range));
+    if (debounced[fieldKey] == null) {
+      debounced[fieldKey] = debounce((r: string) => {
         // query and update
         const queried: Array<string> = queryDataRange(r);
         if (queried == null || queried.length !== 2) {
-          dispatch(updateRangeError(instanceKey, '잘못된 범위입니다.'));
+          dispatch(updateRangeError(fieldKey, '잘못된 범위입니다.'));
         } else {
-          dispatch(updateRangePreview(instanceKey, queried.join(' ~ ')));
+          dispatch(updateRangePreview(fieldKey, queried.join(' ~ ')));
         }
       }, 1000);
     }
-    debounced[instanceKey](range);
+    debounced[fieldKey](range);
+  };
+}
+
+export function addTest() {
+  return {
+    type: ADD_TEST
+  };
+}
+
+export function removeTest(fieldKey) {
+  return {
+    type: REMOVE_TEST,
+    payload: fieldKey
   };
 }
 

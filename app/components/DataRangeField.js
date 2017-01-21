@@ -23,7 +23,7 @@ export default class DataRangeField extends Component {
           floatingLabelStyle={{ color: grey700 }}
           errorText={fieldData.get('errorText')}
           value={fieldData.get('range')}
-          onChange={e => updateRangeThunk(fieldData.get('instanceKey'), e.target.value)}
+          onChange={e => updateRangeThunk(fieldData.get('fieldKey'), e.target.value)}
           {...remain}
         />
         {fieldData.get('loading')
