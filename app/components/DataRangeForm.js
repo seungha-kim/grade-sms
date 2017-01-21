@@ -51,25 +51,25 @@ export default class DataRangeForm extends Component {
           <DataRangeField
             hintText={rangeHintText}
             floatingLabelText="이름"
-            fieldData={formData.get('nameRange')}
+            fieldData={formData.getIn(['privacyRangeSet', 'name'])}
             updateRangeThunk={updateRangeThunk}
           />
           <DataRangeField
             hintText={rangeHintText}
             floatingLabelText="학교"
-            fieldData={formData.get('schoolRange')}
+            fieldData={formData.getIn(['privacyRangeSet', 'school'])}
             updateRangeThunk={updateRangeThunk}
           />
           <DataRangeField
             hintText={rangeHintText}
             floatingLabelText="원번"
-            fieldData={formData.get('idRange')}
+            fieldData={formData.getIn(['privacyRangeSet', 'id'])}
             updateRangeThunk={updateRangeThunk}
           />
           <DataRangeField
             hintText={rangeHintText}
             floatingLabelText="부모님 연락처"
-            fieldData={formData.get('phoneRange')}
+            fieldData={formData.getIn(['privacyRangeSet', 'phone'])}
             updateRangeThunk={updateRangeThunk}
           />
           <div>

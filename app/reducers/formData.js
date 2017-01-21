@@ -38,38 +38,32 @@ function newTestRangeFieldSet() {
 
 const initialState = I.Map({
   filePath: null,
-  nameRange: newRangeField(),
-  schoolRange: newRangeField(),
-  idRange: newRangeField(),
-  phoneRange: newRangeField(),
+  privacyRangeSet: I.Map({
+    name: newRangeField(),
+    school: newRangeField(),
+    id: newRangeField(),
+    phone: newRangeField()
+  }),
   testRangeSets: I.List.of(newTestRangeFieldSet()),
   homeworkRanges: I.List()
 });
 
 function updateByInstanceKey(state, fieldKey, updateFunction) {
-  let intermediate = state;
-  [
-    'nameRange',
-    'schoolRange',
-    'idRange',
-    'phoneRange'
-  ].forEach(fieldName => {
-    if (intermediate.get(fieldName).get('fieldKey') === fieldKey) {
-      intermediate = intermediate.update(fieldName, updateFunction);
-    }
-  });
-  return intermediate
+  function ifMatchUpdate(field) {
+    return (
+      field.get('fieldKey') === fieldKey
+      ? field.update(updateFunction)
+      : field
+    );
+  }
+  return state
+    .update('privacyRangeSet', rangeSet =>
+      rangeSet.map(ifMatchUpdate))
     .update('testRangeSets', rangeSets =>
       rangeSets.map(rangeSet =>
         rangeSet.update('fields', fields =>
-          fields.map(rangeField => (
-            rangeField.get('fieldKey') === fieldKey
-            ? rangeField.update(updateFunction)
-            : rangeField)))))
-    .update('homeworkRanges', rangeField => (
-      rangeField.get('fieldKey') === fieldKey
-        ? rangeField.update(updateFunction)
-        : rangeField));
+          fields.map(ifMatchUpdate))))
+    .update('homeworkRanges', ifMatchUpdate);
 }
 
 export default function xlsx(state = initialState, action) {
@@ -82,12 +76,14 @@ export default function xlsx(state = initialState, action) {
         field
           .set('range', payload.range)
           .set('loading', true)
+          .set('errorText', undefined)
       ));
     case UPDATE_RANGE_PREVIEW:
       return updateByInstanceKey(state, payload.fieldKey, field => (
         field
           .set('queried', payload.queried)
           .set('loading', false)
+          .set('errorText', undefined)
       ));
     case UPDATE_RANGE_ERROR:
       return updateByInstanceKey(state, payload.fieldKey, field => (
