@@ -46,7 +46,8 @@ const initialState = I.Map({
     phone: newRangeField()
   }),
   testRangeSets: I.List.of(newTestRangeFieldSet()),
-  homeworkRanges: I.List()
+  homeworkRanges: I.List(),
+  allRangesValid: false
 });
 
 export function traverseAllFields(state, traverseFunction) {
@@ -68,14 +69,13 @@ function updateAllFields(state, updateFunction) {
 }
 
 function updateAllFieldsByKey(state, fieldKey, updateFunction) {
-  function ifMatchThenUpdate(field) {
-    return (
-      field.get('fieldKey') === fieldKey
-      ? field.update(updateFunction)
-      : field
-    );
+  let valid = true;
+  function ifMatchThenUpdate(f) {
+    const newField = f.get('fieldKey') === fieldKey ? f.update(updateFunction) : f;
+    valid = valid && !newField.get('loading') && newField.get('errorText') == null && newField.get('range') !== '';
+    return newField;
   }
-  return updateAllFields(state, ifMatchThenUpdate);
+  return updateAllFields(state, ifMatchThenUpdate).set('allRangesValid', valid);
 }
 
 export default function xlsx(state = initialState, action) {

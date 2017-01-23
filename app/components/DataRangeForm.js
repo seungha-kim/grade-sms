@@ -20,7 +20,8 @@ type Props = {
   addTest: () => void,
   removeTest: (string) => void,
   addHomework: () => void,
-  removeHomework: (string) => void
+  removeHomework: (string) => void,
+  allRangesValid: boolean
 };
 
 const buttonStyle = {
@@ -139,7 +140,7 @@ export default class DataRangeForm extends Component {
           <RaisedButton label="시험 추가" onClick={addTest} style={buttonStyle} />
           <RaisedButton label="숙제 추가" onClick={addHomework} style={buttonStyle} />
           <RaisedButton label="뒤로" secondary onClick={previousStep} style={buttonStyle} />
-          <RaisedButton label="다음" primary disabled onClick={nextStep} style={buttonStyle} />
+          <RaisedButton label="다음" primary disabled={!formData.get('allRangesValid')} onClick={nextStep} style={buttonStyle} />
         </div>
       </div>
     );
