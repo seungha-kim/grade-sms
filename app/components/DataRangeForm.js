@@ -2,7 +2,6 @@
 import React, { Component } from 'react';
 import RaisedButton from 'material-ui/RaisedButton';
 import type { Map as IMap } from 'immutable';
-import FontIcon from 'material-ui/FontIcon';
 import { Card, CardTitle, CardText, CardActions } from 'material-ui/Card';
 import FlatButton from 'material-ui/FlatButton';
 import { basename } from 'path';
@@ -13,15 +12,13 @@ import DataRangeField from './DataRangeField';
 type Props = {
   formData: IMap<string, any>,
   filePath: string,
-  onError: (string) => void,
   nextStep: () => void,
   previousStep: () => void,
   updateRangeThunk: (string, string) => void,
   addTest: () => void,
   removeTest: (string) => void,
   addHomework: () => void,
-  removeHomework: (string) => void,
-  allRangesValid: boolean
+  removeHomework: (string) => void
 };
 
 const buttonStyle = {

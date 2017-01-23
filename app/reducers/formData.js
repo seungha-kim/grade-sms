@@ -69,13 +69,18 @@ function updateAllFields(state, updateFunction) {
 }
 
 function updateAllFieldsByKey(state, fieldKey, updateFunction) {
-  let valid = true;
   function ifMatchThenUpdate(f) {
-    const newField = f.get('fieldKey') === fieldKey ? f.update(updateFunction) : f;
-    valid = valid && !newField.get('loading') && newField.get('errorText') == null && newField.get('range') !== '';
-    return newField;
+    return f.get('fieldKey') === fieldKey ? f.update(updateFunction) : f;
   }
-  return updateAllFields(state, ifMatchThenUpdate).set('allRangesValid', valid);
+  return updateAllFields(state, ifMatchThenUpdate);
+}
+
+function validateRanges(state) {
+  let valid = true;
+  traverseAllFields(state, f => {
+    valid = valid && !f.get('loading') && f.get('errorText') == null && f.get('range') !== '';
+  });
+  return state.set('allRangesValid', valid);
 }
 
 export default function xlsx(state = initialState, action) {
@@ -89,14 +94,14 @@ export default function xlsx(state = initialState, action) {
           .set('range', payload.range)
           .set('loading', true)
           .set('errorText', undefined)
-      )).set('dirty', true);
+      )).set('dirty', true).set('allRangesValid', false);
     case UPDATE_RANGE_PREVIEW:
       return updateAllFieldsByKey(state, payload.fieldKey, field => (
         field
           .set('queried', payload.queried)
           .set('loading', false)
           .set('errorText', undefined)
-      ));
+      )).update(validateRanges);
     case UPDATE_RANGE_ERROR:
       return updateAllFieldsByKey(state, payload.fieldKey, field => (
         field
@@ -105,13 +110,13 @@ export default function xlsx(state = initialState, action) {
           .set('loading', false)
       ));
     case ADD_TEST:
-      return state.update('testRangeSets', trl => trl.push(newTestRangeFieldSet()));
+      return state.update('testRangeSets', trl => trl.push(newTestRangeFieldSet())).set('allRangesValid', false);
     case REMOVE_TEST:
-      return state.update('testRangeSets', trl => trl.filter(f => f.get('setKey') !== payload));
+      return state.update('testRangeSets', trl => trl.filter(f => f.get('setKey') !== payload)).update(validateRanges);
     case ADD_HOMEWORK:
-      return state.update('homeworkRanges', r => r.push(newRangeField()));
+      return state.update('homeworkRanges', r => r.push(newRangeField())).set('allRangesValid', false);
     case REMOVE_HOMEWORK:
-      return state.update('homeworkRanges', hr => hr.filter(f => f.get('fieldKey') !== payload));
+      return state.update('homeworkRanges', hr => hr.filter(f => f.get('fieldKey') !== payload)).update(validateRanges);
     default:
       return state;
   }
