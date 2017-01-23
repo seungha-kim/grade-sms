@@ -49,7 +49,7 @@ const initialState = I.Map({
 });
 
 function updateByInstanceKey(state, fieldKey, updateFunction) {
-  function ifMatchUpdate(field) {
+  function ifMatchThenUpdate(field) {
     return (
       field.get('fieldKey') === fieldKey
       ? field.update(updateFunction)
@@ -58,12 +58,12 @@ function updateByInstanceKey(state, fieldKey, updateFunction) {
   }
   return state
     .update('privacyRangeSet', rangeSet =>
-      rangeSet.map(ifMatchUpdate))
+      rangeSet.map(ifMatchThenUpdate))
     .update('testRangeSets', rangeSets =>
       rangeSets.map(rangeSet =>
         rangeSet.update('fields', fields =>
-          fields.map(ifMatchUpdate))))
-    .update('homeworkRanges', ifMatchUpdate);
+          fields.map(ifMatchThenUpdate))))
+    .update('homeworkRanges', ifMatchThenUpdate);
 }
 
 export default function xlsx(state = initialState, action) {
