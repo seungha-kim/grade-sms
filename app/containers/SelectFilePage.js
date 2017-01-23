@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import SelectFileForm from '../components/SelectFileForm';
 // import { showOpenDialog } from '../actions/xlsx';
 import { newError } from '../actions/errorMessage';
-import { showOpenDialog, nextStepToFormData } from '../actions/formData';
+import { showOpenDialog, nextStepToDataRangeForm } from '../actions/formData';
 
 function mapStateToProps({ formData }) {
   return {
@@ -15,7 +15,7 @@ function mapStateToProps({ formData }) {
 function mapDispatchToProps(dispatch) {
   return bindActionCreators({
     showOpenDialog,
-    nextStep: nextStepToFormData,
+    nextStep: nextStepToDataRangeForm,
     onError: newError
   }, dispatch);
 }

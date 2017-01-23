@@ -103,14 +103,14 @@ export function updateRangeThunk(fieldKey: string, range: string) {
     dispatch(updateRange(fieldKey, range));
     if (debounced[fieldKey] == null) {
       debounced[fieldKey] = debounce((r: string) => {
-        dispatch(validateField(fieldKey, r));
+        dispatch(validateRange(fieldKey, r));
       }, 1000);
     }
     debounced[fieldKey](range);
   };
 }
 
-function validateField(fieldKey, range) {
+function validateRange(fieldKey, range) {
   return (dispatch) => {
     const queried: Array<string> = queryDataRange(range);
     if (queried == null || queried.length !== 2) {
@@ -121,11 +121,11 @@ function validateField(fieldKey, range) {
   };
 }
 
-function validateAllFieldsIfDirty() {
+function validateAllRangesIfDirty() {
   return (dispatch, getState) => {
     const { formData } = getState();
     if (formData.get('dirty') === true) {
-      traverseAllFields(formData, f => dispatch(validateField(f.get('fieldKey'), f.get('range'))));
+      traverseAllFields(formData, f => dispatch(validateRange(f.get('fieldKey'), f.get('range'))));
     }
   };
 }
@@ -156,9 +156,9 @@ export function removeHomework(fieldKey) {
   };
 }
 
-export function nextStepToFormData() {
+export function nextStepToDataRangeForm() {
   return dispatch => {
     dispatch(nextStep());
-    dispatch(validateAllFieldsIfDirty());
+    dispatch(validateAllRangesIfDirty());
   };
 }

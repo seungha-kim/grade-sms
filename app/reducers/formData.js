@@ -50,7 +50,7 @@ const initialState = I.Map({
   allRangesValid: false
 });
 
-export function traverseAllFields(state, traverseFunction) {
+export function traverseAllFields(state, traverseFunction) { // FIXME
   state.get('privacyRangeSet').forEach(traverseFunction);
   state.get('testRangeSets').forEach(s => s.get('fields').forEach(traverseFunction));
   state.get('homeworkRanges').forEach(traverseFunction);
