@@ -38,6 +38,7 @@ function newTestRangeFieldSet() {
 
 const initialState = I.Map({
   filePath: null,
+  dirty: false,
   privacyRangeSet: I.Map({
     name: newRangeField(),
     school: newRangeField(),
@@ -48,7 +49,25 @@ const initialState = I.Map({
   homeworkRanges: I.List()
 });
 
-function updateByInstanceKey(state, fieldKey, updateFunction) {
+export function traverseAllFields(state, traverseFunction) {
+  state.get('privacyRangeSet').forEach(traverseFunction);
+  state.get('testRangeSets').forEach(s => s.get('fields').forEach(traverseFunction));
+  state.get('homeworkRanges').forEach(traverseFunction);
+}
+
+function updateAllFields(state, updateFunction) {
+  return state
+    .update('privacyRangeSet', rangeSet =>
+      rangeSet.map(updateFunction))
+    .update('testRangeSets', rangeSets =>
+      rangeSets.map(rangeSet =>
+        rangeSet.update('fields', fields =>
+          fields.map(updateFunction))))
+    .update('homeworkRanges', ranges =>
+      ranges.map(updateFunction));
+}
+
+function updateAllFieldsByKey(state, fieldKey, updateFunction) {
   function ifMatchThenUpdate(field) {
     return (
       field.get('fieldKey') === fieldKey
@@ -56,14 +75,7 @@ function updateByInstanceKey(state, fieldKey, updateFunction) {
       : field
     );
   }
-  return state
-    .update('privacyRangeSet', rangeSet =>
-      rangeSet.map(ifMatchThenUpdate))
-    .update('testRangeSets', rangeSets =>
-      rangeSets.map(rangeSet =>
-        rangeSet.update('fields', fields =>
-          fields.map(ifMatchThenUpdate))))
-    .update('homeworkRanges', ifMatchThenUpdate);
+  return updateAllFields(state, ifMatchThenUpdate);
 }
 
 export default function xlsx(state = initialState, action) {
@@ -72,22 +84,23 @@ export default function xlsx(state = initialState, action) {
     case SELECT_FILE:
       return state.set('filePath', payload);
     case UPDATE_RANGE:
-      return updateByInstanceKey(state, payload.fieldKey, field => (
+      return updateAllFieldsByKey(state, payload.fieldKey, field => (
         field
           .set('range', payload.range)
           .set('loading', true)
           .set('errorText', undefined)
-      ));
+      )).set('dirty', true);
     case UPDATE_RANGE_PREVIEW:
-      return updateByInstanceKey(state, payload.fieldKey, field => (
+      return updateAllFieldsByKey(state, payload.fieldKey, field => (
         field
           .set('queried', payload.queried)
           .set('loading', false)
           .set('errorText', undefined)
       ));
     case UPDATE_RANGE_ERROR:
-      return updateByInstanceKey(state, payload.fieldKey, field => (
+      return updateAllFieldsByKey(state, payload.fieldKey, field => (
         field
+          .set('queried', undefined)
           .set('errorText', payload.errorText)
           .set('loading', false)
       ));

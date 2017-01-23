@@ -3,6 +3,10 @@ import { remote } from 'electron';
 import debounce from 'lodash.debounce';
 
 import {
+  nextStep
+} from './step';
+
+import {
   SELECT_FILE,
   UPDATE_RANGE,
   UPDATE_RANGE_PREVIEW,
@@ -10,7 +14,8 @@ import {
   ADD_TEST,
   REMOVE_TEST,
   ADD_HOMEWORK,
-  REMOVE_HOMEWORK
+  REMOVE_HOMEWORK,
+  traverseAllFields
 } from '../reducers/formData';
 
 let workbook = null;
@@ -45,7 +50,8 @@ export function showOpenDialog() {
   };
 }
 
-function queryDataRange(rangeString: string) {
+function queryDataRange(rangeString: ?string) {
+  if (rangeString == null) return;
   if (workbook == null) return; // FIXME
   const sheetName = workbook.SheetNames[0]; // FIXME
   if (sheetName == null) return;
@@ -97,16 +103,30 @@ export function updateRangeThunk(fieldKey: string, range: string) {
     dispatch(updateRange(fieldKey, range));
     if (debounced[fieldKey] == null) {
       debounced[fieldKey] = debounce((r: string) => {
-        // query and update
-        const queried: Array<string> = queryDataRange(r);
-        if (queried == null || queried.length !== 2) {
-          dispatch(updateRangeError(fieldKey, '잘못된 범위입니다.'));
-        } else {
-          dispatch(updateRangePreview(fieldKey, queried.join(' ~ ')));
-        }
+        dispatch(validateField(fieldKey, r));
       }, 1000);
     }
     debounced[fieldKey](range);
+  };
+}
+
+function validateField(fieldKey, range) {
+  return (dispatch) => {
+    const queried: Array<string> = queryDataRange(range);
+    if (queried == null || queried.length !== 2) {
+      dispatch(updateRangeError(fieldKey, '잘못된 범위입니다.'));
+    } else {
+      dispatch(updateRangePreview(fieldKey, queried.join(' ~ ')));
+    }
+  };
+}
+
+function validateAllFieldsIfDirty() {
+  return (dispatch, getState) => {
+    const { formData } = getState();
+    if (formData.get('dirty') === true) {
+      traverseAllFields(formData, f => dispatch(validateField(f.get('fieldKey'), f.get('range'))));
+    }
   };
 }
 
@@ -133,5 +153,12 @@ export function removeHomework(fieldKey) {
   return {
     type: REMOVE_HOMEWORK,
     payload: fieldKey
+  };
+}
+
+export function nextStepToFormData() {
+  return dispatch => {
+    dispatch(nextStep());
+    dispatch(validateAllFieldsIfDirty());
   };
 }
