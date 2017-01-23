@@ -13,6 +13,8 @@ export const REMOVE_TEST = 'REMOVE_TEST';
 export const ADD_HOMEWORK = 'ADD_HOMEWORK';
 export const REMOVE_HOMEWORK = 'REMOVE_HOMEWORK';
 
+export const RESET_FORM_DATA = 'RESET_FORM_DATA';
+
 const defaultRangeField = I.Map({
   range: '',
   errorText: null,
@@ -50,7 +52,7 @@ const initialState = I.Map({
   allRangesValid: false
 });
 
-export function traverseAllFields(state, traverseFunction) { // FIXME
+function traverseAllFields(state, traverseFunction) { // FIXME
   state.get('privacyRangeSet').forEach(traverseFunction);
   state.get('testRangeSets').forEach(s => s.get('fields').forEach(traverseFunction));
   state.get('homeworkRanges').forEach(traverseFunction);
@@ -86,6 +88,8 @@ function validateRanges(state) {
 export default function xlsx(state = initialState, action) {
   const { type, payload } = action;
   switch (type) {
+    case RESET_FORM_DATA:
+      return initialState;
     case SELECT_FILE:
       return state.set('filePath', payload);
     case UPDATE_RANGE:

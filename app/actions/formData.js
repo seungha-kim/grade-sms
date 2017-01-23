@@ -3,7 +3,7 @@ import { remote } from 'electron';
 import debounce from 'lodash.debounce';
 
 import {
-  nextStep
+  previousStep
 } from './step';
 
 import {
@@ -15,7 +15,7 @@ import {
   REMOVE_TEST,
   ADD_HOMEWORK,
   REMOVE_HOMEWORK,
-  traverseAllFields
+  RESET_FORM_DATA
 } from '../reducers/formData';
 
 let workbook = null;
@@ -121,15 +121,6 @@ function validateRange(fieldKey, range) {
   };
 }
 
-function validateAllRangesIfDirty() {
-  return (dispatch, getState) => {
-    const { formData } = getState();
-    if (formData.get('dirty') === true) {
-      traverseAllFields(formData, f => dispatch(validateRange(f.get('fieldKey'), f.get('range'))));
-    }
-  };
-}
-
 export function addTest() {
   return {
     type: ADD_TEST
@@ -156,9 +147,15 @@ export function removeHomework(fieldKey) {
   };
 }
 
-export function nextStepToDataRangeForm() {
+function resetFormData() {
+  return {
+    type: RESET_FORM_DATA
+  };
+}
+
+export function previousStepToSelectFile() {
   return dispatch => {
-    dispatch(nextStep());
-    dispatch(validateAllRangesIfDirty());
+    dispatch(previousStep());
+    dispatch(resetFormData());
   };
 }
