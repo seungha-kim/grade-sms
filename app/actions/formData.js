@@ -3,10 +3,6 @@ import { remote } from 'electron';
 import debounce from 'lodash.debounce';
 
 import {
-  previousStep
-} from './step';
-
-import {
   SELECT_FILE,
   UPDATE_RANGE,
   UPDATE_RANGE_PREVIEW,
@@ -15,7 +11,9 @@ import {
   REMOVE_TEST,
   ADD_HOMEWORK,
   REMOVE_HOMEWORK,
-  RESET_FORM_DATA
+  RESET_FORM_DATA,
+  UPDATE_DATA_VALIDATION,
+  traverseAllFields
 } from '../reducers/formData';
 
 let workbook = null;
@@ -121,6 +119,96 @@ function validateRange(fieldKey, range) {
   };
 }
 
+function updateDataValidation(message, valid) {
+  return {
+    type: UPDATE_DATA_VALIDATION,
+    payload: {
+      dataValidationMessage: message,
+      allDataValid: valid
+    }
+  };
+}
+
+export function validateData() {
+  return (dispatch, getState) => {
+    const messages = [];
+    const { formData } = getState();
+
+    const sheetName = workbook.SheetNames[0]; // FIXME
+    if (sheetName == null) return;
+    const sheet = workbook.Sheets[sheetName];
+
+    // 개수 맞는지 - 모든 range 가져와서 decode 후 개수 검사
+    const ranges = [];
+    traverseAllFields(formData, f => ranges.push(f.get('range')));
+    const allRangesDecoded = ranges.map(xlsx.utils.decode_range);
+    const length = allRangesDecoded
+      .map(r => ((r.e.c - r.s.c) + 1) * ((r.e.r - r.s.r) + 1))
+      .reduce((prev, cur) => (prev === cur ? cur : false));
+    if (length === false) {
+      dispatch(updateDataValidation('범위의 크기가 맞지 않습니다. 뒤로 돌아가 다시 확인해주세요.', false));
+      return;
+    }
+    messages.push(`학생 수 : ${length}`);
+
+    // 셀 중 빈칸이 있는지
+    const blankCells = [];
+    allRangesDecoded.forEach(range => {
+      for (let col = range.s.c; col <= range.e.c; col += 1) {
+        for (let row = range.s.r; row < range.e.r; row += 1) {
+          const cellName = xlsx.utils.encode_cell({ c: col, r: row });
+          if (sheet[cellName] == null) blankCells.push(cellName);
+        }
+      }
+    });
+    if (blankCells.length !== 0) {
+      messages.push(`범위 내에 빈 셀이 존재합니다 : ${blankCells.join(', ')}`);
+      dispatch(updateDataValidation(messages.join('\n'), false));
+      return;
+    }
+
+    // '점수' 필드 중 범위를 벗어난 게 있는지
+    const wrongGrades = [];
+    const gradeRanges = formData
+      .get('testRangeSets')
+      .map(s => s.get('fields').get('grade').get('range'))
+      .concat(formData.get('homeworkRanges').map(rf => rf.get('range')));
+    gradeRanges.forEach(range => {
+      const decoded = xlsx.utils.decode_range(range);
+      for (let col = decoded.s.c; col <= decoded.e.c; col += 1) {
+        for (let row = decoded.s.r; row < decoded.e.r; row += 1) {
+          const cellName = xlsx.utils.encode_cell({ c: col, r: row });
+          const grade = sheet[cellName];
+          if (grade < 0 || grade > 100) wrongGrades.push(cellName);
+        }
+      }
+    });
+    if (wrongGrades.length !== 0) {
+      messages.push(`잘못된 점수 : ${wrongGrades.join(', ')}`);
+      dispatch(updateDataValidation(messages.join('\n'), false));
+      return;
+    }
+
+    // 검색된 모든 반
+    const classes = {};
+    const classRanges = formData
+      .get('testRangeSets')
+      .map(s => s.get('fields').get('class').get('range'));
+    classRanges.forEach(range => {
+      const decoded = xlsx.utils.decode_range(range);
+      for (let col = decoded.s.c; col <= decoded.e.c; col += 1) {
+        for (let row = decoded.s.r; row < decoded.e.r; row += 1) {
+          const cellName = xlsx.utils.encode_cell({ c: col, r: row });
+          const cls = sheet[cellName].v;
+          classes[cls] = true;
+        }
+      }
+    });
+    messages.push(`검색된 모든 반 : \n${Object.keys(classes).join('\n')}`);
+    dispatch(updateDataValidation(messages.join('\n'), true));
+  };
+}
+
 export function addTest() {
   return {
     type: ADD_TEST
@@ -147,15 +235,8 @@ export function removeHomework(fieldKey) {
   };
 }
 
-function resetFormData() {
+export function resetFormData() {
   return {
     type: RESET_FORM_DATA
-  };
-}
-
-export function previousStepToSelectFile() {
-  return dispatch => {
-    dispatch(previousStep());
-    dispatch(resetFormData());
   };
 }

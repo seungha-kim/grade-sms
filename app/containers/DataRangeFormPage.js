@@ -2,14 +2,15 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import DataRangeForm from '../components/DataRangeForm';
 import { newError } from '../actions/errorMessage';
-import { nextStep } from '../actions/step';
+import { nextStep, previousStep } from '../actions/step';
 import {
   updateRangeThunk,
   addTest,
   removeTest,
   addHomework,
   removeHomework,
-  previousStepToSelectFile
+  resetFormData,
+  validateData
 } from '../actions/formData';
 
 function mapStateToProps({ formData }) {
@@ -22,8 +23,14 @@ function mapStateToProps({ formData }) {
 function mapDispatchToProps(dispatch) {
   return bindActionCreators({
     onError: newError,
-    nextStep,
-    previousStep: previousStepToSelectFile,
+    nextStep: () => disp => {
+      disp(validateData());
+      disp(nextStep());
+    },
+    previousStep: () => disp => {
+      disp(resetFormData());
+      disp(previousStep());
+    },
     updateRangeThunk,
     addTest,
     removeTest,

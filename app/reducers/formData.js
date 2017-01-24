@@ -14,6 +14,13 @@ export const ADD_HOMEWORK = 'ADD_HOMEWORK';
 export const REMOVE_HOMEWORK = 'REMOVE_HOMEWORK';
 
 export const RESET_FORM_DATA = 'RESET_FORM_DATA';
+export const UPDATE_DATA_VALIDATION = 'UPDATE_DATA_VALIDATION';
+
+let count = 0;
+function newKey() {
+  count += 1;
+  return count;
+}
 
 const defaultRangeField = I.Map({
   range: '',
@@ -24,7 +31,7 @@ const defaultRangeField = I.Map({
 });
 
 function newRangeField() {
-  return defaultRangeField.set('fieldKey', Math.random());
+  return defaultRangeField.set('fieldKey', newKey());
 }
 
 function newTestRangeFieldSet() {
@@ -34,7 +41,7 @@ function newTestRangeFieldSet() {
       attendance: newRangeField(),
       grade: newRangeField(),
     }),
-    setKey: Math.random()
+    setKey: newKey()
   });
 }
 
@@ -49,10 +56,12 @@ const initialState = I.Map({
   }),
   testRangeSets: I.List.of(newTestRangeFieldSet()),
   homeworkRanges: I.List(),
-  allRangesValid: false
+  allRangesValid: false,
+  allDataValid: false,
+  dataValidationMessage: ''
 });
 
-function traverseAllFields(state, traverseFunction) { // FIXME
+export function traverseAllFields(state, traverseFunction) { // FIXME
   state.get('privacyRangeSet').forEach(traverseFunction);
   state.get('testRangeSets').forEach(s => s.get('fields').forEach(traverseFunction));
   state.get('homeworkRanges').forEach(traverseFunction);
@@ -121,6 +130,10 @@ export default function xlsx(state = initialState, action) {
       return state.update('homeworkRanges', r => r.push(newRangeField())).set('allRangesValid', false);
     case REMOVE_HOMEWORK:
       return state.update('homeworkRanges', hr => hr.filter(f => f.get('fieldKey') !== payload)).update(validateRanges);
+    case UPDATE_DATA_VALIDATION:
+      return state
+        .set('dataValidationMessage', payload.dataValidationMessage)
+        .set('allDataValid', payload.allDataValid);
     default:
       return state;
   }

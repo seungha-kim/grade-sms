@@ -4,22 +4,27 @@ import { connect } from 'react-redux';
 import Home from '../components/Home';
 import SelectFilePage from './SelectFilePage';
 import DataRangeFormPage from './DataRangeFormPage';
+import DataRangeValidationPage from './DataRangeValidationPage';
 
 const steps = [
   {
-    name: '입력 파일 선택',
+    name: '파일 선택',
     el: () => <SelectFilePage />
   },
   {
-    name: '데이터 범위 설정',
+    name: '범위 설정',
     el: () => <DataRangeFormPage />
   },
   {
-    name: '세부 내용 채우기',
+    name: '데이터 검사',
+    el: () => <DataRangeValidationPage />
+  },
+  {
+    name: '성적표 작성',
     el: () => <div>2</div>
   },
   {
-    name: '검토',
+    name: '성적표 검토',
     el: () => <div>3</div>
   },
   {
