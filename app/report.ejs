@@ -1,0 +1,237 @@
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title><%= title %></title>
+    <style>
+      hr, h1, h2, h3, table, .legend {
+        margin-left: 20px;
+        margin-right: 20px;
+      }
+      body {
+        margin: 0;
+        font-size: 16px;
+        word-break: keep-all;
+        overflow-x: hidden;
+        font-family: sans-serif;
+      }
+      table.styled td:first-of-type {
+        color: #777;
+        padding-right: 20px;
+      }
+      h1 {
+        font-size: 1.5rem;
+        text-align: center;
+      }
+      h2 {
+        font-size: 1.3rem;
+      }
+      h3 {
+        font-size: 1.1rem;
+        margin-bottom: 0.4em;
+        color: #777;
+      }
+      hr {
+        display: block;
+        height: 1px;
+        border: 0;
+        border-top: 1px dashed #ccc;
+        padding: 0;
+      }
+      chart_div {
+        overflow: hidden;
+      }
+      .grey1 {
+        color: #777;
+      }
+      #test-chart {
+        margin: 1em auto;
+      }
+      .homework-chart {
+        margin-top: 1em;
+      }
+      .swatch {
+        width: 16px;
+        height: 12px;
+        display: inline-block;
+        vertical-align: middle;
+      }
+      .legend {
+        font-size: 12px;
+      }
+      .legend:first-of-type {
+        padding-right: 10px;
+      }
+    </style>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+      var chartColors = <%- JSON.stringify(chartColors) %>;
+      var tests = <%- JSON.stringify(tests) %>;
+      var homeworks = <%- JSON.stringify(homeworks) %>;
+      // Load the Visualization API and the corechart package.
+      google.charts.load('current', {'packages':['corechart']});
+
+      // Set a callback to run when the Google Visualization API is loaded.
+      google.charts.setOnLoadCallback(drawChart);
+
+      // Callback that creates and populates a data table,
+      // instantiates the pie chart, passes in the data and
+      // draws it.
+      function drawChart() {
+        // test chart
+        var chartWidth = document.body.clientWidth;
+        var testData = [
+          ['시험', '내 점수', {role: 'annotation'}, '반 평균', {role: 'annotation'}, '전체 평균', {role: 'annotation'}],
+        ].concat(tests.map(function(t) {
+          return [t.name, t.grade, t.grade, t.classAvg, t.classAvg, t.totalAvg, t.totalAvg];
+        }));
+        var testChart = new google.visualization.BarChart(document.getElementById('test-chart'));
+        testChart.draw(google.visualization.arrayToDataTable(testData), {
+          legend: {
+            position: 'top'
+          },
+          fontSize: 12,
+          width: chartWidth,
+          height: 50 + 100 * tests.length,
+          hAxis: {
+            viewWindow: {
+              min: 0,
+              max: 100
+            }
+          },
+          chartArea: {
+            left: 70,
+            top: 50,
+            width: '70%',
+            height: '100%'
+          }
+        });
+
+        // homework chart
+        homeworks.forEach(function(h, i) {
+          var homeworkData = [
+            ['반', '점수', {role: 'style'}, {role: 'annotation'}]
+          ].concat(h.classAvgAll.map(function(c, j) {
+            return c.concat([
+              'stroke-width: 0; color: ' + chartColors[j],
+              c[1]
+            ]);
+          }));
+          var homeworkChart = new google.visualization.ColumnChart(document.getElementById("homework-chart-" + i));
+          homeworkChart.draw(google.visualization.arrayToDataTable(homeworkData), {
+            legend: {
+              position: 'none',
+            },
+            vAxis: {
+              viewWindow: {
+                min: 0,
+                max: 100
+              }
+            },
+            hAxis: {
+              textPosition: 'none'
+            },
+            width: chartWidth,
+            height: 200,
+            chartArea: {
+              left: 50,
+              top: 10,
+              width: '80%',
+              height: '90%'
+            },
+            annotations: {
+              alwaysOutside: true
+            }
+          });
+        });
+      }
+    </script>
+  </head>
+  <body>
+    <h1><%= title %></h1>
+
+    <table class="styled">
+      <tr>
+        <td>이름</td>
+        <td><%= name %></td>
+      </tr>
+      <tr>
+        <td>학교</td>
+        <td><%= school %></td>
+      </tr>
+      <tr>
+        <td>원번</td>
+        <td><%= id %></td>
+      </tr>
+      <tr>
+        <td>기간</td>
+        <td><%= period %></td>
+      </tr>
+    </table>
+    <!-- 시험 -->
+    <div id="test-chart"></div>
+    <% tests.forEach(function (t) { %>
+      <hr>
+      <h2><%= t.number %> (<%= t.name %>)</h2>
+      <table class="styled">
+        <tr>
+          <td>반</td>
+          <td>새움최상위일9</td>
+        </tr>
+        <tr>
+          <td>내 점수</td>
+          <td><%= t.grade %></td>
+        </tr>
+        <tr>
+          <td>반 석차</td>
+          <td><%= t.classRank[0] %> <span class="grey1">/ <%= t.classRank[1] %></span></td>
+        </tr>
+        <tr>
+          <td>전체 석차</td>
+          <td><%= t.totalRank[0] %> <span class="grey1">/ <%= t.totalRank[1] %></span></td>
+        </tr>
+      </table>
+      <h3>반별 평균</h3>
+      <table class="styled">
+        <% t.classAvgAll.forEach(function (avg, i) { %>
+          <tr>
+            <td><%= avg[0] %></td>
+            <td><%= avg[1] %></td>
+          </tr>
+        <% }); %>
+      </table>
+    <% }); %>
+    <hr>
+    <h2>부교재 숙제 제출 현황</h2>
+    <table class="styled">
+      <% homeworks.forEach(function(h) { %>
+        <tr>
+          <td><%= h.number %> <%= h.name %></td>
+          <td><%= h.grade %></td>
+        </tr>
+      <% }); %>
+    </table>
+    <h2>부교재 숙제 반별 평균</h2>
+    <% homeworks.forEach(function(h, i) { %>
+      <h3><%= h.name %></h3>
+      <table>
+        <% for (var x=0; x < Math.ceil(h.classAvgAll.length / 2); x++) { %>
+          <tr>
+            <td class="legend">
+              <div class="swatch" style="background-color: <%= chartColors[2*x] %>;"></div>
+              <%= h.classAvgAll[2*x][0] %>
+            </td>
+            <td class="legend">
+              <% if (h.classAvgAll[2*x+1] != null) { %>
+                <div class="swatch" style="background-color: <%= chartColors[2*x + 1] %>;"></div>
+                <%= h.classAvgAll[2*x+1][0] %>
+              <% } %>
+            </td>
+          </tr>
+        <% } %>
+      </table>
+      <div class="homework-chart" id="homework-chart-<%= i %>"></div>
+    <% }); %>
+  </body>
+</html>
