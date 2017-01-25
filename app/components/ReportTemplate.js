@@ -27,76 +27,76 @@ type Props = {
 
 const sample = {
   title: '2017대비 수학 정상모T 고3 정규반 SEASON2 6~9회차 성적표',
-  name: '김승하',
-  school: '대일외고',
-  id: 125125,
+  // name: '김승하',
+  // school: '대일외고',
+  // id: 125125,
   period: '2017.01.01 ~ 2017.02.01',
-  tests: [{
-    number: '7회차',
-    name: 'TEST6',
-    grade: 100,
-    className: '새움어쩌고666',
-    classAvg: 93,
-    classAvgAll: [
-      ['분당시대인재최상위일630', 60.00],
-      ['분당시대인재최상위일630', 63.10],
-      ['시대인재일등급목630', 60.00],
-      ['새움일등급금630', 63.10],
-      ['시대인재일등급목630', 60.00],
-      ['새움일등급금630', 63.10],
-      ['시대인재일등급목630', 60.00],
-      ['새움일등급금630', 63.10]
-    ],
-    classRank: [133, 144],
-    totalAvg: 71,
-    totalRank: [873, 1049]
-  }, {
-    number: '8회차',
-    name: 'TEST7',
-    grade: 99,
-    className: '새움어쩌고666',
-    classAvg: 90,
-    classAvgAll: [
-      ['시대인재일등급목630', 60.00],
-      ['새움일등급금630', 63.10],
-      ['시대인재일등급목630', 60.00],
-      ['새움일등급금630', 63.10],
-      ['시대인재일등급목630', 60.00],
-      ['새움일등급금630', 63.10],
-      ['시대인재일등급목630', 60.00],
-      ['새움일등급금630', 63.10]
-    ],
-    classRank: [133, 144],
-    totalAvg: 78,
-    totalRank: [873, 1049]
-  }],
-  homeworks: [{
-    number: '6회차',
-    name: '(수2) 4. 지수와 로그',
-    grade: 100,
-    classAvgAll: [
-      ['분당시대인재최상위일630', 60.00],
-      ['분당시대인재최상위일630', 63.10],
-      ['시대인재일등급목630', 60.00],
-      ['새움일등급금630', 63.10],
-      ['시대인재일등급목630', 60.00],
-      ['새움일등급금630', 63.10],
-      ['시대인재일등급목630', 60.00],
-    ]
-  }, {
-    number: '6회차',
-    name: '(수2) 4. 지수와 로그',
-    grade: 100,
-    classAvgAll: [
-      ['시대인재일등급목630', 60.00],
-      ['새움일등급금630', 63.10],
-      ['시대인재일등급목630', 60.00],
-      ['새움일등급금630', 63.10],
-      ['시대인재일등급목630', 60.00],
-      ['새움일등급금630', 63.10],
-      ['시대인재일등급목630', 60.00],
-    ]
-  }],
+  // tests: [{
+  //   number: '7회차',
+  //   name: 'TEST6',
+  //   grade: 100,
+  //   className: '새움어쩌고666',
+  //   classAvg: 93,
+  //   classAvgAll: [
+  //     ['분당시대인재최상위일630', 60.00],
+  //     ['분당시대인재최상위일630', 63.10],
+  //     ['시대인재일등급목630', 60.00],
+  //     ['새움일등급금630', 63.10],
+  //     ['시대인재일등급목630', 60.00],
+  //     ['새움일등급금630', 63.10],
+  //     ['시대인재일등급목630', 60.00],
+  //     ['새움일등급금630', 63.10]
+  //   ],
+  //   classRank: [133, 144],
+  //   totalAvg: 71,
+  //   totalRank: [873, 1049]
+  // }, {
+  //   number: '8회차',
+  //   name: 'TEST7',
+  //   grade: 99,
+  //   className: '새움어쩌고666',
+  //   classAvg: 90,
+  //   classAvgAll: [
+  //     ['시대인재일등급목630', 60.00],
+  //     ['새움일등급금630', 63.10],
+  //     ['시대인재일등급목630', 60.00],
+  //     ['새움일등급금630', 63.10],
+  //     ['시대인재일등급목630', 60.00],
+  //     ['새움일등급금630', 63.10],
+  //     ['시대인재일등급목630', 60.00],
+  //     ['새움일등급금630', 63.10]
+  //   ],
+  //   classRank: [133, 144],
+  //   totalAvg: 78,
+  //   totalRank: [873, 1049]
+  // }],
+  // homeworks: [{
+  //   number: '6회차',
+  //   name: '(수2) 4. 지수와 로그',
+  //   grade: 100,
+  //   classAvgAll: [
+  //     ['분당시대인재최상위일630', 60.00],
+  //     ['분당시대인재최상위일630', 63.10],
+  //     ['시대인재일등급목630', 60.00],
+  //     ['새움일등급금630', 63.10],
+  //     ['시대인재일등급목630', 60.00],
+  //     ['새움일등급금630', 63.10],
+  //     ['시대인재일등급목630', 60.00],
+  //   ]
+  // }, {
+  //   number: '6회차',
+  //   name: '(수2) 4. 지수와 로그',
+  //   grade: 100,
+  //   classAvgAll: [
+  //     ['시대인재일등급목630', 60.00],
+  //     ['새움일등급금630', 63.10],
+  //     ['시대인재일등급목630', 60.00],
+  //     ['새움일등급금630', 63.10],
+  //     ['시대인재일등급목630', 60.00],
+  //     ['새움일등급금630', 63.10],
+  //     ['시대인재일등급목630', 60.00],
+  //   ]
+  // }],
   chartColors: [
     '#3366CC',
     '#DC3912',
@@ -125,9 +125,9 @@ export default class ReportTemplate extends Component {
   props: Props;
 
   render() {
-    const { stat } = this.props;
+    const { stat, previousStep } = this.props;
     const { id, name, school } = stat.individual[1]; // FIXME
-    const { tests } = stat;
+    const { tests, homeworks } = stat;
     const testsData = tests.map(({
       individualGrade,
       individualClass,
@@ -139,9 +139,7 @@ export default class ReportTemplate extends Component {
       const grade = individualGrade[id];
       const className = individualClass[id];
       const classAvg = classAvgAllObj[className];
-      const classAvgAll = Object.entries(classAvgAllObj).map(([clsName, clsAvg]) =>
-        [clsName, clsAvg] // FIXME: format
-      );
+      const classAvgAll = Object.entries(classAvgAllObj);
       const classRank = [
         classRankAllObj[className].indexOf(id) + 1,
         classRankAllObj[className].length
@@ -159,11 +157,27 @@ export default class ReportTemplate extends Component {
         totalRank
       };
     });
+    const homeworksData = homeworks.map(({
+      individualGrade,
+      totalAvg,
+      classAvg: classAvgAllObj
+    }) => {
+      const grade = individualGrade[id];
+      const classAvgAll = Object.entries(classAvgAllObj);
+      return {
+        number: '6회차 (시험중...)',
+        name: '시험운행중...',
+        grade,
+        classAvgAll,
+        totalAvg
+      };
+    });
     const templateData = Object.assign({}, sample, {
       id,
       name,
       school,
-      tests: testsData
+      tests: testsData,
+      homeworks: homeworksData
     });
     console.log(templateData);
 
@@ -193,7 +207,7 @@ export default class ReportTemplate extends Component {
         </Paper>
       </div>
       <div className={s.buttons}>
-        <RaisedButton label="뒤로" secondary />
+        <RaisedButton label="뒤로" secondary onClick={previousStep} />
         <RaisedButton label="다음" primary />
       </div>
     </div>);

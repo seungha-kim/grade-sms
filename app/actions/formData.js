@@ -177,7 +177,11 @@ export function validateData() {
     const gradeRanges = formData
       .get('testRangeSets')
       .map(s => s.get('fields').get('grade').get('range'))
-      .concat(formData.get('homeworkRanges').map(rf => rf.get('range')));
+      .concat(
+        formData
+          .get('homeworkRangeSets')
+          .map(s => s.get('fields').get('grade').get('range'))
+      );
     gradeRanges.forEach(range => {
       const decoded = xlsx.utils.decode_range(range);
       for (let col = decoded.s.c; col <= decoded.e.c; col += 1) {
@@ -291,21 +295,21 @@ export function calculateStat() {
       });
       const individualGrade = _.zipObject(ids, testGrades);
       const individualClass = _.zipObject(ids, testClasses);
-      const statIntermidate = _.chain(ids)
+      const statIntermediate = _.chain(ids)
         .zip(testGrades, testClasses)
         .map(([id, grade, cls]) => ({ id, grade: parseFloat(grade), cls }))
         .filter(({ grade }) => !Number.isNaN(grade))
         .values();
 
-      const totalRank = _.chain(statIntermidate)
+      const totalRank = _.chain(statIntermediate)
         .sortBy(({ grade }) => grade)
         .map(({ id }) => id)
         .value();
-      const totalAvg = _.chain(statIntermidate)
+      const totalAvg = _.chain(statIntermediate)
         .map(({ grade }) => grade)
         .thru(arr => _.sum(arr) / arr.length)
         .value();
-      const classRank = _.chain(statIntermidate)
+      const classRank = _.chain(statIntermediate)
         .reduce((acc, { id, cls, grade }) => {
           acc[cls] = acc[cls] || []; // eslint-disable-line
           acc[cls].push({ id, grade });
@@ -318,7 +322,7 @@ export function calculateStat() {
             .value();
         }, {})
         .value();
-      const classAvg = _.chain(statIntermidate)
+      const classAvg = _.chain(statIntermediate)
         .reduce((acc, { grade, cls }) => {
           acc[cls] = acc[cls] || []; // eslint-disable-line
           acc[cls].push(grade);
@@ -326,7 +330,7 @@ export function calculateStat() {
         }, {})
         .transform((result, value, key) => {
           result[key] = _.sum(value) / value.length; // eslint-disable-line
-        })
+        }, {})
         .value();
       return {
         individualGrade,
@@ -337,21 +341,39 @@ export function calculateStat() {
         classAvg
       };
     }).toJS();
-    const homeworks = formData.get('homeworkRanges').map(hr => {
+    const homeworks = formData.get('homeworkRangeSets').map(hr => {
       const grades = convertRange(
-        hr.get('range'),
+        hr.get('fields').get('grade').get('range'),
+        ad => sheet[ad].v
+      );
+      const classes = convertRange(
+        hr.get('fields').get('class').get('range'),
         ad => sheet[ad].v
       );
       const individualGrade = _.zipObject(ids, grades);
-      const totalAvg = _.chain(grades)
-        .map(g => g.parseFloat(g))
-        .filter(g => !Number.isNaN(g))
+      const statIntermediate = _.chain(ids)
+        .zip(grades, classes)
+        .map(([id, grade, cls]) => ({ id, grade: parseFloat(grade), cls }))
+        .filter(({ grade }) => !Number.isNaN(grade))
+        .value();
+      const totalAvg = _.chain(statIntermediate)
+        .map(({ grade }) => grade)
         .thru(arr => _.sum(arr) / arr.length)
+        .value();
+      const classAvg = _.chain(statIntermediate)
+        .reduce((acc, { grade, cls }) => {
+          acc[cls] = acc[cls] || []; // eslint-disable-line
+          acc[cls].push(grade);
+          return acc;
+        }, {})
+        .transform((result, value, key) => {
+          result[key] = _.sum(value) / value.length; // eslint-disable-line
+        }, {})
         .value();
       return {
         individualGrade,
         totalAvg,
-        classAvg: {} // FIXME
+        classAvg
       };
     }).toJS();
     dispatch({

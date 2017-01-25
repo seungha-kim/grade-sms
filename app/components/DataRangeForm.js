@@ -117,18 +117,24 @@ export default class DataRangeForm extends Component {
             </Card>)}
           </div>
           <div>
-            {formData.get('homeworkRanges').map((field, i) => <Card key={field.get('fieldKey')} style={cardStyle}>
+            {formData.get('homeworkRangeSets').map((fieldSet, i) => <Card key={fieldSet.get('setKey')} style={cardStyle}>
               <CardTitle title={`숙제 ${i + 1}`} style={cardTitleStyle} />
               <CardText>
                 <DataRangeField
                   hintText={rangeHintText}
-                  floatingLabelText="숙제 점수"
-                  fieldData={field}
+                  floatingLabelText="반"
+                  fieldData={fieldSet.getIn(['fields', 'class'])}
+                  updateRangeThunk={updateRangeThunk}
+                />
+                <DataRangeField
+                  hintText={rangeHintText}
+                  floatingLabelText="점수"
+                  fieldData={fieldSet.getIn(['fields', 'grade'])}
                   updateRangeThunk={updateRangeThunk}
                 />
               </CardText>
               <CardActions>
-                <FlatButton secondary label="삭제" onClick={() => removeHomework(field.get('fieldKey'))} />
+                <FlatButton secondary label="삭제" onClick={() => removeHomework(fieldSet.get('setKey'))} />
               </CardActions>
             </Card>)}
           </div>

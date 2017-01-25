@@ -16,6 +16,7 @@
         word-break: keep-all;
         overflow-x: hidden;
         font-family: sans-serif;
+        margin-bottom: 30px;
       }
       table.styled td:first-of-type {
         color: #777;
@@ -39,6 +40,7 @@
         border: 0;
         border-top: 1px dashed #ccc;
         padding: 0;
+        margin-top: 1em;
       }
       chart_div {
         overflow: hidden;
@@ -88,7 +90,7 @@
         ].concat(tests.map(function(t) {
           var grade = isFinite(t.grade) ? t.grade : 0;
           var gradeAnnotation = grade === 0 ? '' : grade;
-          return [t.name, grade, gradeAnnotation, t.classAvg, t.classAvg, t.totalAvg, t.totalAvg];
+          return [t.name, grade, gradeAnnotation, t.classAvg, t.classAvg.toFixed(2), t.totalAvg, t.totalAvg.toFixed(2)];
         }));
         var testChart = new google.visualization.BarChart(document.getElementById('test-chart'));
         testChart.draw(google.visualization.arrayToDataTable(testData), {
@@ -119,7 +121,7 @@
           ].concat(h.classAvgAll.map(function(c, j) {
             return c.concat([
               'stroke-width: 0; color: ' + chartColors[j],
-              c[1]
+              c[1].toFixed(2)
             ]);
           }));
           var homeworkChart = new google.visualization.ColumnChart(document.getElementById("homework-chart-" + i));
@@ -143,9 +145,6 @@
               top: 10,
               width: '100%',
               height: '90%'
-            },
-            annotations: {
-              alwaysOutside: true
             }
           });
         });
@@ -154,7 +153,6 @@
   </head>
   <body>
     <h1><%= title %></h1>
-
     <table class="styled">
       <tr>
         <td>이름</td>
@@ -173,7 +171,7 @@
         <td><%= period %></td>
       </tr>
     </table>
-    <!-- 시험 -->
+    <%# 시험 %>
     <div id="test-chart"></div>
     <% tests.forEach(function (t) { %>
       <hr>
@@ -201,41 +199,44 @@
         <% t.classAvgAll.forEach(function (avg, i) { %>
           <tr>
             <td><%= avg[0] %></td>
-            <td><%= avg[1] %></td>
+            <td><%= avg[1].toFixed(2) %></td>
           </tr>
         <% }); %>
       </table>
     <% }); %>
     <hr>
-    <h2>부교재 숙제 제출 현황</h2>
-    <table class="styled">
-      <% homeworks.forEach(function(h) { %>
-        <tr>
-          <td><%= h.number %> <%= h.name %></td>
-          <td><%= h.grade %></td>
-        </tr>
-      <% }); %>
-    </table>
-    <h2>부교재 숙제 반별 평균</h2>
-    <% homeworks.forEach(function(h, i) { %>
-      <h3><%= h.name %></h3>
-      <table>
-        <% for (var x=0; x < Math.ceil(h.classAvgAll.length / 2); x++) { %>
+    <%# 숙제 %>
+    <% if (homeworks.length > 0) { %>
+      <h2>부교재 숙제 제출 현황</h2>
+      <table class="styled">
+        <% homeworks.forEach(function(h) { %>
           <tr>
-            <td class="legend">
-              <div class="swatch" style="background-color: <%= chartColors[2*x] %>;"></div>
-              <%= h.classAvgAll[2*x][0] %>
-            </td>
-            <td class="legend">
-              <% if (h.classAvgAll[2*x+1] != null) { %>
-                <div class="swatch" style="background-color: <%= chartColors[2*x + 1] %>;"></div>
-                <%= h.classAvgAll[2*x+1][0] %>
-              <% } %>
-            </td>
+            <td><%= h.number %> - <%= h.name %></td>
+            <td><%= h.grade %></td>
           </tr>
-        <% } %>
+        <% }); %>
       </table>
-      <div class="homework-chart" id="homework-chart-<%= i %>"></div>
-    <% }); %>
+      <h2>부교재 숙제 반별 평균</h2>
+      <% homeworks.forEach(function(h, i) { %>
+        <h3><%= h.name %></h3>
+        <table>
+          <% for (var x=0; x < Math.ceil(h.classAvgAll.length / 2); x++) { %>
+            <tr>
+              <td class="legend">
+                <div class="swatch" style="background-color: <%= chartColors[2*x] %>;"></div>
+                <%= h.classAvgAll[2*x][0] %>
+              </td>
+              <td class="legend">
+                <% if (h.classAvgAll[2*x+1] != null) { %>
+                  <div class="swatch" style="background-color: <%= chartColors[2*x + 1] %>;"></div>
+                  <%= h.classAvgAll[2*x+1][0] %>
+                <% } %>
+              </td>
+            </tr>
+          <% } %>
+        </table>
+        <div class="homework-chart" id="homework-chart-<%= i %>"></div>
+      <% }); %>
+    <% } %>
   </body>
 </html>
