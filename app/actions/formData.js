@@ -1,6 +1,7 @@
 import xlsx from 'xlsx';
 import { remote } from 'electron';
 import debounce from 'lodash.debounce';
+import _ from 'lodash';
 
 import {
   SELECT_FILE,
@@ -15,6 +16,10 @@ import {
   UPDATE_DATA_VALIDATION,
   traverseAllFields
 } from '../reducers/formData';
+
+import {
+  UPDATE_STAT
+} from '../reducers/stat';
 
 let workbook = null;
 const debounced = {};
@@ -239,4 +244,135 @@ export function resetFormData() {
   return {
     type: RESET_FORM_DATA
   };
+}
+
+export function calculateStat() {
+  return (dispatch, getState) => {
+    const sheetName = workbook.SheetNames[0]; // FIXME
+    if (sheetName == null) return;
+    const sheet = workbook.Sheets[sheetName];
+    const { formData } = getState();
+    // TODO: 출결에 따라 제외
+    const filterByIndex = () => true;
+    const convertRange = (rangeString, mapper) =>
+      rangeToAddresses(rangeString).map(mapper).filter(filterByIndex);
+    const classesMap = {};
+    // individual
+    const ids = convertRange(
+      formData.get('privacyRangeSet').get('id').get('range'),
+      ad => sheet[ad].v.toString()
+    );
+    const names = convertRange(
+      formData.get('privacyRangeSet').get('name').get('range'),
+      ad => sheet[ad].v
+    );
+    const schools = convertRange(
+      formData.get('privacyRangeSet').get('school').get('range'),
+      ad => sheet[ad].v
+    );
+    const phones = convertRange(
+      formData.get('privacyRangeSet').get('phone').get('range'),
+      ad => sheet[ad].v
+    );
+    const individual = _.zipWith(
+      ids, names, schools, phones,
+      (id, name, school, phone) => ({ id, name, school, phone }));
+    const tests = formData.get('testRangeSets').map(trs => {
+      const testClasses = convertRange(
+        trs.get('fields').get('class').get('range'),
+        ad => sheet[ad].v
+      );
+      const testGrades = convertRange(
+        trs.get('fields').get('grade').get('range'),
+        ad => sheet[ad].v
+      );
+      testClasses.forEach(c => {
+        classesMap[c] = true;
+      });
+      const individualGrade = _.zipObject(ids, testGrades);
+      const individualClass = _.zipObject(ids, testClasses);
+      const statIntermidate = _.chain(ids)
+        .zip(testGrades, testClasses)
+        .map(([id, grade, cls]) => ({ id, grade: parseFloat(grade), cls }))
+        .filter(({ grade }) => !Number.isNaN(grade))
+        .values();
+
+      const totalRank = _.chain(statIntermidate)
+        .sortBy(({ grade }) => grade)
+        .map(({ id }) => id)
+        .value();
+      const totalAvg = _.chain(statIntermidate)
+        .map(({ grade }) => grade)
+        .thru(arr => _.sum(arr) / arr.length)
+        .value();
+      const classRank = _.chain(statIntermidate)
+        .reduce((acc, { id, cls, grade }) => {
+          acc[cls] = acc[cls] || []; // eslint-disable-line
+          acc[cls].push({ id, grade });
+          return acc;
+        }, {})
+        .transform((result, value, cls) => {
+          result[cls] = _.chain(value) // eslint-disable-line
+            .sortBy(({ grade }) => grade)
+            .map(({ id }) => id)
+            .value();
+        }, {})
+        .value();
+      const classAvg = _.chain(statIntermidate)
+        .reduce((acc, { grade, cls }) => {
+          acc[cls] = acc[cls] || []; // eslint-disable-line
+          acc[cls].push(grade);
+          return acc;
+        }, {})
+        .transform((result, value, key) => {
+          result[key] = _.sum(value) / value.length; // eslint-disable-line
+        })
+        .value();
+      return {
+        individualGrade,
+        individualClass,
+        totalRank,
+        totalAvg,
+        classRank,
+        classAvg
+      };
+    }).toJS();
+    const homeworks = formData.get('homeworkRanges').map(hr => {
+      const grades = convertRange(
+        hr.get('range'),
+        ad => sheet[ad].v
+      );
+      const individualGrade = _.zipObject(ids, grades);
+      const totalAvg = _.chain(grades)
+        .map(g => g.parseFloat(g))
+        .filter(g => !Number.isNaN(g))
+        .thru(arr => _.sum(arr) / arr.length)
+        .value();
+      return {
+        individualGrade,
+        totalAvg,
+        classAvg: {} // FIXME
+      };
+    }).toJS();
+    dispatch({
+      type: UPDATE_STAT,
+      payload: {
+        classes: Array.from(Object.keys(classesMap)),
+        individual,
+        tests,
+        homeworks,
+      }
+    });
+  };
+}
+
+function rangeToAddresses(rangeString) {
+  const result = [];
+  const range = xlsx.utils.decode_range(rangeString);
+  for (let c = range.s.c; c <= range.e.c; c += 1) {
+    for (let r = range.s.r; r <= range.e.r; r += 1) {
+      result.push(xlsx.utils.encode_cell({ c, r }));
+    }
+  }
+  return result;
 }

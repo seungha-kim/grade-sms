@@ -2,8 +2,7 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import DataRangeValidation from '../components/DataRangeValidation';
 import { nextStep, previousStep } from '../actions/step';
-import {
-} from '../actions/formData';
+import { calculateStat } from '../actions/formData';
 
 function mapStateToProps({ formData }) {
   return {
@@ -13,7 +12,10 @@ function mapStateToProps({ formData }) {
 
 function mapDispatchToProps(dispatch) {
   return bindActionCreators({
-    nextStep,
+    nextStep: () => disp => {
+      disp(calculateStat());
+      disp(nextStep());
+    },
     previousStep
   }, dispatch);
 }

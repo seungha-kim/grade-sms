@@ -14,6 +14,7 @@ import s from './ReportTemplate.css';
 
 type Props = {
   formData: IMap<string, any>,
+  stat: any,
   filePath: string,
   nextStep: () => void,
   previousStep: () => void,
@@ -124,6 +125,48 @@ export default class ReportTemplate extends Component {
   props: Props;
 
   render() {
+    const { stat } = this.props;
+    const { id, name, school } = stat.individual[1]; // FIXME
+    const { tests } = stat;
+    const testsData = tests.map(({
+      individualGrade,
+      individualClass,
+      totalRank: totalRankArr,
+      totalAvg,
+      classRank: classRankAllObj,
+      classAvg: classAvgAllObj
+    }) => {
+      const grade = individualGrade[id];
+      const className = individualClass[id];
+      const classAvg = classAvgAllObj[className];
+      const classAvgAll = Object.entries(classAvgAllObj).map(([clsName, clsAvg]) =>
+        [clsName, clsAvg] // FIXME: format
+      );
+      const classRank = [
+        classRankAllObj[className].indexOf(id) + 1,
+        classRankAllObj[className].length
+      ];
+      const totalRank = [totalRankArr.indexOf(id) + 1, totalRankArr.length];
+      return {
+        number: '7회차', // FIXME
+        name: 'TEST6',
+        grade,
+        className,
+        classAvg,
+        classAvgAll,
+        classRank,
+        totalAvg,
+        totalRank
+      };
+    });
+    const templateData = Object.assign({}, sample, {
+      id,
+      name,
+      school,
+      tests: testsData
+    });
+    console.log(templateData);
+
     return (<div>
       <div className={s.wrap}>
         <div className={s.left}>
@@ -146,7 +189,7 @@ export default class ReportTemplate extends Component {
         </div>
         <Paper className={s.right}>
 
-          <iframe className={s.iframe} frameBorder="0" scrolling srcDoc={ejs.render(template, sample)} />
+          <iframe className={s.iframe} frameBorder="0" scrolling srcDoc={ejs.render(template, templateData)} />
         </Paper>
       </div>
       <div className={s.buttons}>

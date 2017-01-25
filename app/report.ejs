@@ -86,7 +86,9 @@
         var testData = [
           ['시험', '내 점수', {role: 'annotation'}, '반 평균', {role: 'annotation'}, '전체 평균', {role: 'annotation'}],
         ].concat(tests.map(function(t) {
-          return [t.name, t.grade, t.grade, t.classAvg, t.classAvg, t.totalAvg, t.totalAvg];
+          var grade = isFinite(t.grade) ? t.grade : 0;
+          var gradeAnnotation = grade === 0 ? '' : grade;
+          return [t.name, grade, gradeAnnotation, t.classAvg, t.classAvg, t.totalAvg, t.totalAvg];
         }));
         var testChart = new google.visualization.BarChart(document.getElementById('test-chart'));
         testChart.draw(google.visualization.arrayToDataTable(testData), {

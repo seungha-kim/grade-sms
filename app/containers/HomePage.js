@@ -6,7 +6,7 @@ import SelectFilePage from './SelectFilePage';
 import DataRangeFormPage from './DataRangeFormPage';
 import DataRangeValidationPage from './DataRangeValidationPage';
 
-import ReportTemplate from '../components/ReportTemplate'; // FIXME
+import ReportTemplatePage from './ReportTemplatePage';
 
 const steps = [
   {
@@ -23,7 +23,7 @@ const steps = [
   },
   {
     name: '성적표 작성',
-    el: () => <ReportTemplate />
+    el: () => <ReportTemplatePage />
   },
   {
     name: '성적표 검토',

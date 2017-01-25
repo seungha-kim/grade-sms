@@ -5,13 +5,15 @@ import counter from './counter';
 import step from './step';
 import formData from './formData';
 import errorMessage from './errorMessage';
+import stat from './stat';
 
 const rootReducer = combineReducers({
   counter,
   routing,
   step,
   formData,
-  errorMessage
+  errorMessage,
+  stat
 });
 
 export default rootReducer;
