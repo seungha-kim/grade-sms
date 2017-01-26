@@ -5,6 +5,7 @@ import { Card, CardTitle, CardText } from 'material-ui/Card';
 import TextField from 'material-ui/TextField';
 import Paper from 'material-ui/Paper';
 import debounce from 'lodash.debounce';
+import IconButton from 'material-ui/IconButton';
 
 import { TemplateForm } from '../reducers/templateForm';
 import s from './ReportTemplate.css';
@@ -17,7 +18,9 @@ type Props = {
   templateForm: TemplateForm,
   nextStep: () => void,
   previousStep: () => void,
-  updateTemplateFieldByKey: (number, string) => void
+  updateTemplateFieldByKey: (number, string) => void,
+  previewNextStudent: () => void,
+  previewPreviousStudent: () => void
 };
 
 type State = {
@@ -33,25 +36,40 @@ export default class ReportTemplate extends Component {
   }
   state: State;
 
+  componentWillReceiveProps(nextProps: Props) {
+    if (this.props.templateForm.currentIndex !== nextProps.templateForm.currentIndex) {
+      this.updateTemplate(nextProps);
+    }
+  }
+
   onFieldChange(fieldKey: number) {
     return (e: Event, newValue: string) => {
       const { updateTemplateFieldByKey } = this.props;
       updateTemplateFieldByKey(fieldKey, newValue);
-      this.updateTemplate();
+      this.updateTemplateDebounced();
     };
   }
 
-  updateTemplate = debounce(() => {
-    const { stat, templateForm } = this.props;
+  updateTemplate(props: ?Props = null) {
+    const { stat, templateForm } = props || this.props;
     this.setState({
       rendered: renderTemplate(stat, templateForm)
     });
-  }, 1000)
+  }
+
+  updateTemplateDebounced = debounce(this.updateTemplate, 1000)
 
   props: Props;
 
   render() {
-    const { previousStep, templateForm, nextStep } = this.props;
+    const {
+      previousStep,
+      templateForm,
+      nextStep,
+      previewNextStudent,
+      previewPreviousStudent,
+      stat
+    } = this.props;
     const { rendered } = this.state;
     return (<div>
       <HelpText>
@@ -60,6 +78,11 @@ export default class ReportTemplate extends Component {
         <strong><code>*</code> 표시가 된 칸을 모두 채우셔야 다음으로 넘어갈 수 있습니다.</strong>
       </HelpText>
       <div className={s.content}>
+        <div className={s.arrows}>
+          <IconButton onClick={previewPreviousStudent} iconClassName="material-icons">chevron_left</IconButton>
+          <div>{templateForm.currentIndex + 1} / {stat.individual.length}</div>
+          <IconButton onClick={previewNextStudent} iconClassName="material-icons">chevron_right</IconButton>
+        </div>
         <div className={s.left}>
           <Card className={s.card}>
             <CardTitle title="기본 정보" />
@@ -103,7 +126,6 @@ export default class ReportTemplate extends Component {
                   onChange={this.onFieldChange(ts.name.fieldKey)}
                 />
               </div>))}
-
               {templateForm.homeworks.map((hs, i) => (<div key={hs.setKey}>
                 <TextField
                   floatingLabelText={`숙제 ${i + 1} 회차*`}

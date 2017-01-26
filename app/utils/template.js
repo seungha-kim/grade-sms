@@ -97,7 +97,7 @@ const chartColors = [
 ];
 
 export function render(stat, templateForm) {
-  const { id, name, school } = stat.individual[1]; // FIXME
+  const { id, name, school } = stat.individual[templateForm.currentIndex];
   const { tests: testsStat, homeworks: homeworksStat } = stat;
   const { tests: testsForm, homeworks: homeworksForm } = templateForm;
   const testsData = testsStat.map(({
@@ -108,20 +108,27 @@ export function render(stat, templateForm) {
     classRank: classRankAllObj,
     classAvg: classAvgAllObj
   }, i) => {
-    const grade = individualGrade[id];
+    const gradeDisp = individualGrade[id];
+    const noGrade = !Number.isFinite(gradeDisp);
+    const grade = noGrade ? 0 : gradeDisp;
     const className = individualClass[id];
-    const classAvg = classAvgAllObj[className];
+    const noClass = className === '0' || className === 0; // FIXME: 다른 곳으로 빼야 함
+    const classAvg = noClass ? 0 : classAvgAllObj[className];
     const classAvgAll = [['전체', totalAvg]].concat(Object.entries(classAvgAllObj));
     const classRank = [
-      classRankAllObj[className].indexOf(id) + 1,
-      classRankAllObj[className].length
+      noGrade || noClass ? '-' : classRankAllObj[className].indexOf(id) + 1,
+      noClass ? '-' : classRankAllObj[className].length
     ];
-    const totalRank = [totalRankArr.indexOf(id) + 1, totalRankArr.length];
+    const totalRank = [
+      noGrade || noClass ? '-' : totalRankArr.indexOf(id) + 1,
+      totalRankArr.length
+    ];
     return {
       number: testsForm.get(i).number.value || `(시험 ${i + 1} 회차)`,
       name: testsForm.get(i).name.value || `(시험 ${i + 1} 이름)`,
+      gradeDisp,
       grade,
-      className,
+      className: noClass ? '-' : className,
       classAvg,
       classAvgAll,
       classRank,
@@ -134,12 +141,12 @@ export function render(stat, templateForm) {
     totalAvg,
     classAvg: classAvgAllObj
   }, i) => {
-    const grade = individualGrade[id];
+    const gradeDisp = individualGrade[id];
     const classAvgAll = [['전체', totalAvg]].concat(Object.entries(classAvgAllObj));
     return {
       number: homeworksForm.get(i).number.value || `(숙제 ${i + 1} 회차)`,
       name: homeworksForm.get(i).name.value || `(숙제 ${i + 1} 이름)`,
-      grade,
+      gradeDisp,
       classAvgAll,
       totalAvg
     };

@@ -95,9 +95,9 @@
         var testData = [
           ['시험', '내 점수', {role: 'annotation'}, '반 평균', {role: 'annotation'}, '전체 평균', {role: 'annotation'}],
         ].concat(tests.map(function(t) {
-          var grade = isFinite(t.grade) ? t.grade : 0;
-          var gradeAnnotation = grade === 0 ? '' : grade;
-          return [t.name, grade, gradeAnnotation, t.classAvg, t.classAvg.toFixed(2), t.totalAvg, t.totalAvg.toFixed(2)];
+          var gradeAnnotation = t.grade === 0 ? '' : t.grade;
+          var classAvgAnnotation = t.classAvg === 0 ? '' : t.classAvg.toFixed(2);
+          return [t.name, t.grade, gradeAnnotation, t.classAvg, classAvgAnnotation, t.totalAvg, t.totalAvg.toFixed(2)];
         }));
         var testChart = new google.visualization.BarChart(document.getElementById('test-chart'));
         testChart.draw(google.visualization.arrayToDataTable(testData), {
@@ -190,7 +190,7 @@
         </tr>
         <tr>
           <td>내 점수</td>
-          <td><%= t.grade %></td>
+          <td><%= t.gradeDisp %></td>
         </tr>
         <tr>
           <td>반 석차</td>
@@ -219,7 +219,7 @@
         <% homeworks.forEach(function(h) { %>
           <tr>
             <td><%= h.number %> - <%= h.name %></td>
-            <td><%= h.grade %></td>
+            <td><%= h.gradeDisp %></td>
           </tr>
         <% }); %>
       </table>

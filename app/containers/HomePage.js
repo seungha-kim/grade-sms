@@ -22,19 +22,11 @@ const steps = [
     el: () => <DataRangeValidationPage />
   },
   {
-    name: '성적표 작성',
+    name: '성적표 작성 및 검토',
     el: () => <ReportTemplatePage />
   },
   {
-    name: '성적표 검토',
-    el: () => <div>3</div>
-  },
-  {
-    name: '발송',
-    el: () => <div>4</div>
-  },
-  {
-    name: '완료',
+    name: '성적표 생성',
     el: () => <div>5</div>
   },
 ];
