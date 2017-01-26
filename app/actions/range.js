@@ -15,7 +15,7 @@ import {
   RESET_FORM_DATA,
   UPDATE_DATA_VALIDATION,
   traverseAllFields
-} from '../reducers/formData';
+} from '../reducers/range';
 
 import {
   UPDATE_STAT
@@ -137,7 +137,7 @@ function updateDataValidation(message, valid) {
 export function validateData() {
   return (dispatch, getState) => {
     const messages = [];
-    const { formData } = getState();
+    const { range: formData } = getState();
 
     const sheetName = workbook.SheetNames[0]; // FIXME
     if (sheetName == null) return;
@@ -255,7 +255,7 @@ export function calculateStat() {
     const sheetName = workbook.SheetNames[0]; // FIXME
     if (sheetName == null) return;
     const sheet = workbook.Sheets[sheetName];
-    const { formData } = getState();
+    const { range: formData } = getState();
     // TODO: 출결에 따라 제외
     const filterByIndex = () => true;
     const convertRange = (rangeString, mapper) =>

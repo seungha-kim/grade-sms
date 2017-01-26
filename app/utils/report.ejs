@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><%= title %></title>
     <style>
-      hr, h1, h2, h3, table, .legend {
+      hr, h1, h2, h3, table, .legend, p {
         margin-left: 20px;
         margin-right: 20px;
       }
@@ -66,6 +66,13 @@
       }
       .legend:first-of-type {
         padding-right: 10px;
+      }
+      .pre {
+        white-space: pre-wrap;
+      }
+      p {
+        color: #555;
+        font-size: 0.9rem;
       }
     </style>
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
@@ -152,7 +159,7 @@
     </script>
   </head>
   <body>
-    <h1><%= title %></h1>
+    <h1 class="pre"><%= title %></h1>
     <table class="styled">
       <tr>
         <td>이름</td>
@@ -237,6 +244,11 @@
         </table>
         <div class="homework-chart" id="homework-chart-<%= i %>"></div>
       <% }); %>
+    <% } %>
+    <% if (notice) { %>
+      <hr>
+      <h3>참고사항</h3>
+      <p class="pre"><%= notice %></p>
     <% } %>
   </body>
 </html>

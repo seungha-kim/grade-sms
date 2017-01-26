@@ -11,9 +11,9 @@ import {
   removeHomework,
   resetFormData,
   validateData
-} from '../actions/formData';
+} from '../actions/range';
 
-function mapStateToProps({ formData }) {
+function mapStateToProps({ range: formData }) {
   return {
     formData,
     filePath: formData.get('filePath')
