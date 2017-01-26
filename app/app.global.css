@@ -46,7 +46,7 @@ body {
   margin: 0;
   position: relative;
   height: 100vh;
-  font-family: Arial, Helvetica, Helvetica Neue, serif;
+  font-family: Arial, Helvetica, Helvetica Neue, sans-serif;
   overflow-y: hidden;
 }
 

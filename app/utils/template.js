@@ -108,12 +108,13 @@ export function render(stat, templateForm) {
     classRank: classRankAllObj,
     classAvg: classAvgAllObj
   }, i) => {
-    const gradeDisp = individualGrade[id];
-    const noGrade = !Number.isFinite(gradeDisp);
-    const grade = noGrade ? 0 : gradeDisp;
+    const noGrade = !Number.isFinite(individualGrade[id]);
+    const gradeDisp = noGrade ? `<strong>${individualGrade[id]}</strong>` : individualGrade[id];
+    const grade = noGrade ? 0 : individualGrade[id];
     const className = individualClass[id];
     const noClass = className === '0' || className === 0; // FIXME: 다른 곳으로 빼야 함
     const classAvg = noClass ? 0 : classAvgAllObj[className];
+    const classAvgDisp = noClass ? '-' : classAvgAllObj[className].toFixed(2);
     const classAvgAll = [['전체', totalAvg]].concat(Object.entries(classAvgAllObj));
     const classRank = [
       noGrade || noClass ? '-' : classRankAllObj[className].indexOf(id) + 1,
@@ -124,12 +125,13 @@ export function render(stat, templateForm) {
       totalRankArr.length
     ];
     return {
-      number: testsForm.get(i).number.value || `(시험 ${i + 1} 회차)`,
-      name: testsForm.get(i).name.value || `(시험 ${i + 1} 이름)`,
+      number: testsForm.get(i).number.value || `<시험 ${i + 1} 회차>`,
+      name: testsForm.get(i).name.value || `<시험 ${i + 1} 이름>`,
       gradeDisp,
       grade,
       className: noClass ? '-' : className,
       classAvg,
+      classAvgDisp,
       classAvgAll,
       classRank,
       totalAvg,
@@ -141,19 +143,20 @@ export function render(stat, templateForm) {
     totalAvg,
     classAvg: classAvgAllObj
   }, i) => {
-    const gradeDisp = individualGrade[id];
+    const noGrade = !Number.isFinite(individualGrade[id]);
+    const gradeDisp = noGrade ? `<strong>${individualGrade[id]}</strong>` : individualGrade[id].toFixed(2);
     const classAvgAll = [['전체', totalAvg]].concat(Object.entries(classAvgAllObj));
     return {
-      number: homeworksForm.get(i).number.value || `(숙제 ${i + 1} 회차)`,
-      name: homeworksForm.get(i).name.value || `(숙제 ${i + 1} 이름)`,
+      number: homeworksForm.get(i).number.value || `<숙제 ${i + 1} 회차>`,
+      name: homeworksForm.get(i).name.value || `<숙제 ${i + 1} 이름>`,
       gradeDisp,
       classAvgAll,
       totalAvg
     };
   });
   const templateData = {
-    title: templateForm.misc.title.value || '(제목)',
-    period: templateForm.misc.period.value || '(기간)',
+    title: templateForm.misc.title.value || '<제목>',
+    period: templateForm.misc.period.value || '<기간>',
     notice: templateForm.misc.notice.value,
     id,
     name,

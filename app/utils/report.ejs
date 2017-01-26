@@ -74,6 +74,9 @@
         color: #555;
         font-size: 0.9rem;
       }
+      strong {
+        color: red;
+      }
     </style>
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <script type="text/javascript">
@@ -190,7 +193,7 @@
         </tr>
         <tr>
           <td>내 점수</td>
-          <td><%= t.gradeDisp %></td>
+          <td><%- t.gradeDisp %></td>
         </tr>
         <tr>
           <td>반 석차</td>
@@ -219,7 +222,7 @@
         <% homeworks.forEach(function(h) { %>
           <tr>
             <td><%= h.number %> - <%= h.name %></td>
-            <td><%= h.gradeDisp %></td>
+            <td><%- h.gradeDisp %></td>
           </tr>
         <% }); %>
       </table>
