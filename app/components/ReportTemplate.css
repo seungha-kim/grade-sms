@@ -1,5 +1,6 @@
 .wrap {
   display: flex;
+  align-items: stretch;
 }
 
 .left {
@@ -9,7 +10,6 @@
 
 .right {
   width: 400px;
-  height: 700px;
   margin: 30px;
   margin-left: 0;
 }

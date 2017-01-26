@@ -58,14 +58,14 @@ export default class ReportTemplate extends Component {
             <CardTitle title="기본 정보" />
             <CardText className={s.textFields}>
               <TextField
-                floatingLabelText="제목"
+                floatingLabelText="제목*"
                 style={{ width: '100%' }}
                 value={templateForm.misc.title.value}
                 onChange={this.onFieldChange(templateForm.misc.title.fieldKey)}
                 multiLine
               />
               <TextField
-                floatingLabelText="기간"
+                floatingLabelText="기간*"
                 style={{ width: '100%' }}
                 value={templateForm.misc.period.value}
                 onChange={this.onFieldChange(templateForm.misc.period.fieldKey)}
@@ -84,13 +84,13 @@ export default class ReportTemplate extends Component {
             <CardText className={s.textFields}>
               {templateForm.tests.map((ts, i) => (<div key={ts.setKey}>
                 <TextField
-                  floatingLabelText={`시험 ${i + 1} 회차`}
+                  floatingLabelText={`시험 ${i + 1} 회차*`}
                   style={{ width: '100%' }}
                   value={ts.number.value}
                   onChange={this.onFieldChange(ts.number.fieldKey)}
                 />
                 <TextField
-                  floatingLabelText={`시험 ${i + 1} 이름`}
+                  floatingLabelText={`시험 ${i + 1} 이름*`}
                   style={{ width: '100%' }}
                   value={ts.name.value}
                   onChange={this.onFieldChange(ts.name.fieldKey)}
@@ -99,13 +99,13 @@ export default class ReportTemplate extends Component {
 
               {templateForm.homeworks.map((hs, i) => (<div key={hs.setKey}>
                 <TextField
-                  floatingLabelText={`숙제 ${i + 1} 회차`}
+                  floatingLabelText={`숙제 ${i + 1} 회차*`}
                   style={{ width: '100%' }}
                   value={hs.number.value}
                   onChange={this.onFieldChange(hs.number.fieldKey)}
                 />
                 <TextField
-                  floatingLabelText={`숙제 ${i + 1} 이름`}
+                  floatingLabelText={`숙제 ${i + 1} 이름*`}
                   style={{ width: '100%' }}
                   value={hs.name.value}
                   onChange={this.onFieldChange(hs.name.fieldKey)}
@@ -120,7 +120,7 @@ export default class ReportTemplate extends Component {
       </div>
       <div className={s.buttons}>
         <RaisedButton label="뒤로" secondary onClick={previousStep} />
-        <RaisedButton label="다음" primary onClick={nextStep} />
+        <RaisedButton label="다음" primary disabled={!templateForm.allFieldsValid} onClick={nextStep} />
       </div>
     </div>);
   }
