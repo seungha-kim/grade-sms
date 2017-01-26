@@ -4,6 +4,9 @@ import TextField from 'material-ui/TextField';
 import RaisedButton from 'material-ui/RaisedButton';
 
 import s from './SelectFileForm.css';
+import cs from './commonStyles.css';
+
+import HelpText from './HelpText';
 
 type Props = {
   showOpenDialog: () => void,
@@ -21,6 +24,10 @@ export default class SelectFileForm extends Component {
     return (
       <div className={s.wrap}>
         <div className={s.content}>
+          <HelpText>
+            성적표 생성에 사용될 엑셀 파일을 선택하는 과정입니다. <br />
+            아래 빈 칸을 클릭해서 엑셀 파일을 선택하세요.
+          </HelpText>
           <TextField
             hintText="여기를 클릭해 엑셀 파일을 선택하세요..."
             value={filePath || ''}
@@ -28,7 +35,7 @@ export default class SelectFileForm extends Component {
             fullWidth
           />
         </div>
-        <div className={s.buttons}>
+        <div className={cs.buttonWrap}>
           <RaisedButton label="다음" primary disabled={filePath == null} onClick={nextStep} />
         </div>
       </div>

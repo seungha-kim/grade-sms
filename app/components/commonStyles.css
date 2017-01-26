@@ -1,0 +1,9 @@
+.buttonWrap {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 30px;
+}
+
+.buttonWrap > * {
+  margin-left: 12px;
+}

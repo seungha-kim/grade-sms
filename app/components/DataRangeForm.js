@@ -7,7 +7,10 @@ import FlatButton from 'material-ui/FlatButton';
 import { basename } from 'path';
 
 import s from './DataRangeForm.css';
+import cs from './commonStyles.css';
+
 import DataRangeField from './DataRangeField';
+import HelpText from './HelpText';
 
 type Props = {
   formData: IMap<string, any>,
@@ -59,6 +62,10 @@ export default class DataRangeForm extends Component {
     return (
       <div className={s.wrap}>
         <div className={s.content}>
+          <HelpText>
+            성적표 생성에 사용될 데이터 범위를 입력하는 과정입니다. <br />
+            각 항목에 해당하는 데이터 범위를 입력해주세요. (예: <code>X15:X1000</code>)
+          </HelpText>
           <Card style={cardStyle}>
             <CardTitle title="기본 사항" subtitle={basename(filePath)} />
             <CardText>
@@ -139,7 +146,7 @@ export default class DataRangeForm extends Component {
             </Card>)}
           </div>
         </div>
-        <div className={s.buttons}>
+        <div className={cs.buttonWrap}>
           <RaisedButton label="시험 추가" onClick={addTest} style={buttonStyle} />
           <RaisedButton label="숙제 추가" onClick={addHomework} style={buttonStyle} />
           <RaisedButton label="뒤로" secondary onClick={previousStep} style={buttonStyle} />

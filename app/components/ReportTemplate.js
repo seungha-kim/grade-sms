@@ -8,6 +8,8 @@ import debounce from 'lodash.debounce';
 
 import { TemplateForm } from '../reducers/templateForm';
 import s from './ReportTemplate.css';
+import cs from './commonStyles.css';
+import HelpText from './HelpText';
 import { render as renderTemplate } from '../utils/template';
 
 type Props = {
@@ -52,7 +54,12 @@ export default class ReportTemplate extends Component {
     const { previousStep, templateForm, nextStep } = this.props;
     const { rendered } = this.state;
     return (<div>
-      <div className={s.wrap}>
+      <HelpText>
+        성적 데이터 외에 성적표 생성에 필요한 내용을 채워넣는 과정입니다. <br />
+        왼쪽에 채워넣은 내용이 오른쪽 미리보기에 나타납니다. 우측의 화살표를 눌러 성적표가 제대로 생성되었는지 검토해주세요.<br />
+        <strong><code>*</code> 표시가 된 칸을 모두 채우셔야 다음으로 넘어갈 수 있습니다.</strong>
+      </HelpText>
+      <div className={s.content}>
         <div className={s.left}>
           <Card className={s.card}>
             <CardTitle title="기본 정보" />
@@ -118,7 +125,7 @@ export default class ReportTemplate extends Component {
           <iframe className={s.iframe} frameBorder="0" scrolling srcDoc={rendered} />
         </Paper>
       </div>
-      <div className={s.buttons}>
+      <div className={cs.buttonWrap}>
         <RaisedButton label="뒤로" secondary onClick={previousStep} />
         <RaisedButton label="다음" primary disabled={!templateForm.allFieldsValid} onClick={nextStep} />
       </div>
