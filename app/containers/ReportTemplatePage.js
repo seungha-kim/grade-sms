@@ -7,6 +7,9 @@ import {
   previewNextStudent,
   previewPreviousStudent
 } from '../actions/templateForm';
+import {
+  defaultDestDir
+} from '../actions/generate';
 
 function mapStateToProps({ stat, templateForm }) {
   return {
@@ -17,7 +20,10 @@ function mapStateToProps({ stat, templateForm }) {
 
 function mapDispatchToProps(dispatch) {
   return bindActionCreators({
-    nextStep,
+    nextStep: () => (disp) => {
+      disp(defaultDestDir());
+      disp(nextStep());
+    },
     previousStep,
     updateTemplateFieldByKey,
     previewNextStudent,

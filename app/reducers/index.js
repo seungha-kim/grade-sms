@@ -7,6 +7,7 @@ import range from './range';
 import errorMessage from './errorMessage';
 import stat from './stat';
 import templateForm from './templateForm';
+import generate from './generate';
 
 const rootReducer = combineReducers({
   counter,
@@ -15,7 +16,8 @@ const rootReducer = combineReducers({
   range,
   errorMessage,
   stat,
-  templateForm
+  templateForm,
+  generate
 });
 
 export default rootReducer;

@@ -5,8 +5,8 @@ import Home from '../components/Home';
 import SelectFilePage from './SelectFilePage';
 import DataRangeFormPage from './DataRangeFormPage';
 import DataRangeValidationPage from './DataRangeValidationPage';
-
 import ReportTemplatePage from './ReportTemplatePage';
+import GenerateReportsPage from './GenerateReportsPage';
 
 const steps = [
   {
@@ -26,7 +26,11 @@ const steps = [
     el: () => <ReportTemplatePage />
   },
   {
-    name: '성적표 생성',
+    name: '발송 계획 생성',
+    el: () => <GenerateReportsPage />
+  },
+  {
+    name: '완료',
     el: () => <div>5</div>
   },
 ];
