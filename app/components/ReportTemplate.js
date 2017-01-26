@@ -6,7 +6,7 @@ import { Card, CardTitle, CardText, CardActions } from 'material-ui/Card';
 import FlatButton from 'material-ui/FlatButton';
 import { basename } from 'path';
 import TextField from 'material-ui/TextField';
-import template from 'raw-loader!../report.ejs';
+import template from '../report.ejs';
 import ejs from 'ejs';
 import Paper from 'material-ui/Paper';
 
@@ -139,7 +139,7 @@ export default class ReportTemplate extends Component {
       const grade = individualGrade[id];
       const className = individualClass[id];
       const classAvg = classAvgAllObj[className];
-      const classAvgAll = Object.entries(classAvgAllObj);
+      const classAvgAll = [['전체', totalAvg]].concat(Object.entries(classAvgAllObj));
       const classRank = [
         classRankAllObj[className].indexOf(id) + 1,
         classRankAllObj[className].length
@@ -163,7 +163,7 @@ export default class ReportTemplate extends Component {
       classAvg: classAvgAllObj
     }) => {
       const grade = individualGrade[id];
-      const classAvgAll = Object.entries(classAvgAllObj);
+      const classAvgAll = [['전체', totalAvg]].concat(Object.entries(classAvgAllObj));
       return {
         number: '6회차 (시험중...)',
         name: '시험운행중...',
