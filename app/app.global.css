@@ -63,3 +63,11 @@ p {
 li {
   list-style: none;
 }
+
+code {
+  padding: 2px 4px;
+  border-radius: 2px;
+  margin: 0 2px;
+  background-color: #ddd;
+  color: #000;
+}

@@ -22,9 +22,10 @@ export default class HelpText extends Component {
   };
 
   render() {
-    return (<div style={style}>
+    const { children, ...remain } = this.props;
+    return (<div style={style} {...remain}>
       <FontIcon className="material-icons" style={iconStyle}>info_outline</FontIcon>
-      {this.props.children}
+      {children}
     </div>);
   }
 }

@@ -7,6 +7,7 @@ import DataRangeFormPage from './DataRangeFormPage';
 import DataRangeValidationPage from './DataRangeValidationPage';
 import ReportTemplatePage from './ReportTemplatePage';
 import GenerateReportsPage from './GenerateReportsPage';
+import GenerateDonePage from './GenerateDonePage';
 
 const steps = [
   {
@@ -31,7 +32,7 @@ const steps = [
   },
   {
     name: '완료',
-    el: () => <div>5</div>
+    el: () => <GenerateDonePage />
   },
 ];
 

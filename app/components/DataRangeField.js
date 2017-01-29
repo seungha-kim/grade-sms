@@ -14,7 +14,6 @@ type Props = {
 
 export default class DataRangeField extends Component {
   props: Props;
-
   render() {
     const { fieldData, updateRangeThunk, ...remain } = this.props;
     return (
