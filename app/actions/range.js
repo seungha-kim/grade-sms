@@ -214,6 +214,7 @@ export function validateData() {
       }
     });
     messages.push(`검색된 모든 반 : \n${Object.keys(classes).join('\n')}`);
+    messages.push('검사 과정을 통과했습니다.');
     dispatch(updateDataValidation(messages.join('\n'), true));
   };
 }

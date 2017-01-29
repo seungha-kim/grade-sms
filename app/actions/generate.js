@@ -7,7 +7,8 @@ import { createHash } from 'crypto';
 import { newError } from './errorMessage';
 import { render } from '../utils/template';
 import {
-  UPDATE_DEST_DIR
+  UPDATE_DEST_DIR,
+  UPDATE_GENERATING
 } from '../reducers/generate';
 import { nextStep } from '../actions/step';
 
@@ -41,25 +42,37 @@ function mkdirpPromise(destDir) {
 
 export function generateReports() {
   return (dispatch, getState) => {
+    dispatch(updateGenerating(true));
     const { templateForm, stat, generate } = getState();
     const destDir = generate.destDir;
     mkdirpPromise(destDir).then(() => {
       stat.individual.forEach((ind, i) => {
-        try {
-          const rendered = render(stat, templateForm, i);
-          const hashString = createHash('sha256').update(rendered).digest('hex').slice(0, 8);
-          const fileName = `${ind.id}_${hashString}.html`;
-          fs.writeFileSync(path.join(destDir, fileName), rendered);
-        } catch (e) {
-          console.log(`error: ${ind.id}`);
-          console.error(e);
-        }
+        const rendered = render(stat, templateForm, i);
+        const hashString = createHash('sha256').update(rendered).digest('hex').slice(0, 8);
+        const fileName = `${ind.id}_${hashString}.html`;
+        fs.writeFileSync(path.join(destDir, fileName), rendered);
       });
-      dispatch(nextStep()); // FIXME: 에러 볼 수 있도록
+      dispatch(nextStep());
       return true;
     }).catch(err => {
       console.error(err);
       dispatch(newError(err.toString()));
     });
+  };
+}
+
+export function showFolderSelectDialog() {
+  return (dispatch) => {
+    const [dir] = remote.dialog.showOpenDialog({ properties: ['openDirectory'] });
+    if (dir != null) {
+      dispatch(updateDestDir(dir));
+    }
+  };
+}
+
+export function updateGenerating(value: boolean) {
+  return {
+    type: UPDATE_GENERATING,
+    payload: value
   };
 }

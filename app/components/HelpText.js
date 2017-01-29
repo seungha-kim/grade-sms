@@ -4,7 +4,8 @@ import FontIcon from 'material-ui/FontIcon';
 const style = {
   position: 'relative',
   color: '#777',
-  paddingLeft: '13px'
+  paddingLeft: '13px',
+  lineHeight: 1.5
 };
 
 const iconStyle = {
