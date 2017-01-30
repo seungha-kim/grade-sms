@@ -119,7 +119,12 @@ export default class DataRangeForm extends Component {
                 />
               </CardText>
               <CardActions>
-                <FlatButton secondary label="삭제" onClick={() => removeTest(fieldSet.get('setKey'))} />
+                <FlatButton
+                  disabled={formData.get('testRangeSets').size <= 1}
+                  secondary
+                  label="삭제"
+                  onClick={() => removeTest(fieldSet.get('setKey'))}
+                />
               </CardActions>
             </Card>)}
           </div>

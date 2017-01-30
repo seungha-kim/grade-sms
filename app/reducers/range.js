@@ -144,7 +144,9 @@ export default function xlsx(state = initialState, action) {
     case ADD_TEST:
       return state.update('testRangeSets', trs => trs.push(newTestRangeFieldSet())).set('allRangesValid', false);
     case REMOVE_TEST:
-      return state.update('testRangeSets', trs => trs.filter(f => f.get('setKey') !== payload)).update(validateRanges);
+      return state.get('testRangeSets').size > 1
+        ? state.update('testRangeSets', trs => trs.filter(f => f.get('setKey') !== payload)).update(validateRanges)
+        : state;
     case ADD_HOMEWORK:
       return state.update('homeworkRangeSets', hrs => hrs.push(newHomeworkRangeFieldSet())).set('allRangesValid', false);
     case REMOVE_HOMEWORK:
