@@ -27,11 +27,11 @@ const steps = [
     el: () => <ReportTemplatePage />
   },
   {
-    name: '발송 계획 생성',
+    name: '성적표 생성',
     el: () => <GenerateReportsPage />
   },
   {
-    name: '완료',
+    name: '생성 완료',
     el: () => <GenerateDonePage />
   },
 ];
