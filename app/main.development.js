@@ -77,15 +77,17 @@ app.on('ready', async () => {
   template = [{
     label: '메뉴',
     submenu: [{
+      label: '설정',
+      click() {
+        mainWindow.webContents.reload();
+      }
+    }, {
       label: '성적표 발송',
       click() {
         mainWindow.webContents.reload();
       }
     }, {
-      label: '설정',
-      click() {
-        mainWindow.webContents.reload();
-      }
+      type: 'separator'
     }, {
       label: '재시작',
       click() {
@@ -96,6 +98,8 @@ app.on('ready', async () => {
       click() {
         mainWindow.toggleDevTools();
       }
+    }, {
+      type: 'separator'
     }, {
       label: '종료',
       click() {
