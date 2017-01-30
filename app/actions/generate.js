@@ -8,7 +8,8 @@ import { newError } from './errorMessage';
 import { render } from '../utils/template';
 import {
   UPDATE_DEST_DIR,
-  UPDATE_GENERATING
+  UPDATE_GENERATING,
+  PROGRESS_GENERATING
 } from '../reducers/generate';
 import { nextStep } from '../actions/step';
 
@@ -45,13 +46,32 @@ export function generateReports() {
     const { templateForm, stat, generate } = getState();
     const destDir = generate.destDir;
     mkdirpPromise(destDir).then(() => {
-      stat.individual.forEach((ind, i) => {
-        const rendered = render(stat, templateForm, i);
-        const hashString = createHash('sha256').update(rendered).digest('hex').slice(0, 8);
-        const fileName = `${ind.id}_${hashString}.html`;
-        fs.writeFileSync(path.join(destDir, fileName), rendered);
-      });
-      dispatch(nextStep());
+      function* iter() {
+        for (let i = 0; i < stat.individual.length; i += 1) {
+          yield new Promise((resolve, reject) => {
+            setTimeout(() => {
+              const rendered = render(stat, templateForm, i);
+              const hashString = createHash('sha256').update(rendered).digest('hex').slice(0, 8);
+              const fileName = `${stat.individual[i].id}_${hashString}.html`;
+              fs.writeFile(path.join(destDir, fileName), rendered, { encoding: 'utf-8' }, err => {
+                if (err) reject(err);
+                console.log(`generated: ${fileName}`);
+                dispatch({ type: PROGRESS_GENERATING });
+                resolve();
+              });
+            }, 16);
+          });
+        }
+      }
+      Promise.all(iter())
+        .then(() => {
+          dispatch(nextStep());
+          return true;
+        })
+        .catch(err => {
+          console.error(err);
+          dispatch(newError(err.toString()));
+        });
       return true;
     }).catch(err => {
       console.error(err);
