@@ -78,27 +78,28 @@ app.on('ready', async () => {
     label: '메뉴',
     submenu: [{
       label: '성적표 발송',
-      accelerator: 'Ctrl+R',
       click() {
         mainWindow.webContents.reload();
       }
     }, {
       label: '설정',
-      accelerator: 'Ctrl+R',
       click() {
         mainWindow.webContents.reload();
       }
     }, {
       label: '재시작',
-      accelerator: 'Ctrl+R',
       click() {
         mainWindow.webContents.reload();
       }
     }, {
       label: '개발자 도구',
-      accelerator: 'Alt+Ctrl+I',
       click() {
         mainWindow.toggleDevTools();
+      }
+    }, {
+      label: '종료',
+      click() {
+        mainWindow.close();
       }
     }]
   }];
