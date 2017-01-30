@@ -25,6 +25,7 @@ import {
 
 let workbook = null;
 const debounced = {};
+const RESET_TEXT = '\n엑셀 파일을 수정한 후 프로그램을 다시 실행해 주세요.';
 
 export function selectFile(name: string) {
   return {
@@ -153,8 +154,9 @@ export function validateData() {
   return (dispatch, getState) => {
     const messages = [];
     const { range: formData } = getState();
-
-    const sheetName = workbook.SheetNames[0]; // FIXME
+    const selectedSheetIndex = formData.get('selectedSheetIndex');
+    if (selectedSheetIndex == null) return;
+    const sheetName = workbook.SheetNames[selectedSheetIndex];
     if (sheetName == null) return;
     const sheet = workbook.Sheets[sheetName];
 
@@ -166,10 +168,9 @@ export function validateData() {
       .map(r => ((r.e.c - r.s.c) + 1) * ((r.e.r - r.s.r) + 1))
       .reduce((prev, cur) => (prev === cur ? cur : false));
     if (length === false) {
-      dispatch(updateDataValidation('범위의 크기가 맞지 않습니다. 뒤로 돌아가 다시 확인해주세요.', false));
+      dispatch(updateDataValidation('모든 범위의 크기가 같아야 합니다. 뒤로 돌아가 다시 확인해주세요.', false));
       return;
     }
-    messages.push(`학생 수 : ${length}`);
 
     // 셀 중 빈칸이 있는지
     const blankCells = [];
@@ -182,9 +183,28 @@ export function validateData() {
       }
     });
     if (blankCells.length !== 0) {
-      messages.push(`범위 내에 빈 셀이 존재합니다 : ${blankCells.join(', ')}`);
+      messages.push(`범위 내에 빈 셀이 존재합니다 : ${blankCells.join(', ')}${RESET_TEXT}`);
       dispatch(updateDataValidation(messages.join('\n'), false));
       return;
+    }
+
+    // 원번은 모두 자연수이고 중복된 게 없는지
+    const idAddresses = rangeToAddresses(formData.get('privacyRangeSet').get('id').get('range'));
+    const idSet = {};
+    for (let i = 0; i < idAddresses.length; i += 1) {
+      const id = sheet[idAddresses[i]].v;
+      const parsed = parseInt(id, 10);
+      if (Number.isNaN(parsed) || parsed < 1) {
+        messages.push(`허용되지 않는 원번이 존재합니다 : ${id}${RESET_TEXT}`);
+        dispatch(updateDataValidation(messages.join('\n'), false));
+        return;
+      }
+      if (idSet[id] != null) {
+        messages.push(`중복된 원번이 존재합니다 : ${id}${RESET_TEXT}`);
+        dispatch(updateDataValidation(messages.join('\n'), false));
+        return;
+      }
+      idSet[id] = true;
     }
 
     // '점수' 필드 중 범위를 벗어난 게 있는지
@@ -208,7 +228,7 @@ export function validateData() {
       }
     });
     if (wrongGrades.length !== 0) {
-      messages.push(`잘못된 점수 : ${wrongGrades.join(', ')}`);
+      messages.push(`허용되지 않는 점수 : ${wrongGrades.join(', ')}${RESET_TEXT}`);
       dispatch(updateDataValidation(messages.join('\n'), false));
       return;
     }
@@ -229,7 +249,7 @@ export function validateData() {
       }
     });
     messages.push(`검색된 모든 반 : \n${Object.keys(classes).join('\n')}`);
-    messages.push('검사 과정을 통과했습니다.');
+    messages.push('\n모든 검사 과정을 통과했습니다.');
     dispatch(updateDataValidation(messages.join('\n'), true));
   };
 }
@@ -268,29 +288,28 @@ export function resetFormData() {
 
 export function calculateStat() {
   return (dispatch, getState) => {
-    const sheetName = workbook.SheetNames[0]; // FIXME
+    const { range: formData } = getState();
+    const selectedSheetIndex = formData.get('selectedSheetIndex');
+    if (selectedSheetIndex == null) return;
+    const sheetName = workbook.SheetNames[selectedSheetIndex];
     if (sheetName == null) return;
     const sheet = workbook.Sheets[sheetName];
-    const { range: formData } = getState();
-    // TODO: 출결에 따라 제외
-    const filterByIndex = () => true;
-    const convertRange = (rangeString, mapper) =>
-      rangeToAddresses(rangeString).map(mapper).filter(filterByIndex);
+    // TODO: 출결에 따라 제외?
     const classesMap = {};
     // individual
-    const ids = convertRange(
+    const ids = rangeMap(
       formData.get('privacyRangeSet').get('id').get('range'),
       ad => sheet[ad].v.toString()
     );
-    const names = convertRange(
+    const names = rangeMap(
       formData.get('privacyRangeSet').get('name').get('range'),
       ad => sheet[ad].v
     );
-    const schools = convertRange(
+    const schools = rangeMap(
       formData.get('privacyRangeSet').get('school').get('range'),
       ad => sheet[ad].v
     );
-    const phones = convertRange(
+    const phones = rangeMap(
       formData.get('privacyRangeSet').get('phone').get('range'),
       ad => sheet[ad].v
     );
@@ -298,11 +317,11 @@ export function calculateStat() {
       ids, names, schools, phones,
       (id, name, school, phone) => ({ id, name, school, phone }));
     const tests = formData.get('testRangeSets').map(trs => {
-      const testClasses = convertRange(
+      const testClasses = rangeMap(
         trs.get('fields').get('class').get('range'),
         ad => sheet[ad].v
       );
-      const testGrades = convertRange(
+      const testGrades = rangeMap(
         trs.get('fields').get('grade').get('range'),
         ad => sheet[ad].v
       );
@@ -358,11 +377,11 @@ export function calculateStat() {
       };
     }).toJS();
     const homeworks = formData.get('homeworkRangeSets').map(hr => {
-      const grades = convertRange(
+      const grades = rangeMap(
         hr.get('fields').get('grade').get('range'),
         ad => sheet[ad].v
       );
-      const classes = convertRange(
+      const classes = rangeMap(
         hr.get('fields').get('class').get('range'),
         ad => sheet[ad].v
       );
@@ -413,4 +432,8 @@ function rangeToAddresses(rangeString) {
     }
   }
   return result;
+}
+
+function rangeMap(rangeString, mapper) {
+  return rangeToAddresses(rangeString).map(mapper);
 }
