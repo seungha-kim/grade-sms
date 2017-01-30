@@ -78,11 +78,6 @@ export default class ReportTemplate extends Component {
         <strong><code>*</code> 표시가 된 칸을 모두 채우셔야 다음으로 넘어갈 수 있습니다.</strong>
       </HelpText>
       <div className={s.content}>
-        <div className={s.arrows}>
-          <IconButton onClick={previewPreviousStudent} iconClassName="material-icons">chevron_left</IconButton>
-          <div>{templateForm.currentIndex + 1} / {stat.individual.length}</div>
-          <IconButton onClick={previewNextStudent} iconClassName="material-icons">chevron_right</IconButton>
-        </div>
         <div className={s.left}>
           <Card className={s.card}>
             <CardTitle title="기본 정보" />
@@ -144,6 +139,16 @@ export default class ReportTemplate extends Component {
           </Card>
         </div>
         <Paper className={s.right}>
+          <div className={s.toolbar}>
+            <div className={s.phone}>
+              수신 : {stat.individual[templateForm.currentIndex].phone}
+            </div>
+            <div className={s.arrows}>
+              <IconButton onClick={previewPreviousStudent} iconClassName="material-icons">chevron_left</IconButton>
+              <div>{templateForm.currentIndex + 1} / {stat.individual.length}</div>
+              <IconButton onClick={previewNextStudent} iconClassName="material-icons">chevron_right</IconButton>
+            </div>
+          </div>
           <iframe className={s.iframe} frameBorder="0" scrolling srcDoc={rendered} />
         </Paper>
       </div>

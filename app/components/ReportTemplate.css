@@ -2,7 +2,7 @@
   position: relative;
   display: flex;
   align-items: stretch;
-  margin-top: 30px;
+  margin-top: 50px;
 }
 
 .left {
@@ -11,6 +11,7 @@
 }
 
 .right {
+  position: relative;
   width: 400px;
 }
 
@@ -36,10 +37,23 @@
 
 .arrows {
   width: 200px;
-  position: absolute;
   display: flex;
   align-items: center;
   justify-content: space-between;
+}
+
+.phone {
+  color: #aaa;
+  padding-left: 10px;
+}
+
+.toolbar {
+  position: absolute;
   right: 0;
+  left: 0;
   top: -50px;
+  height: 50px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
