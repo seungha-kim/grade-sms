@@ -150,6 +150,14 @@ function updateDataValidation(message, valid) {
   };
 }
 
+export function revalidate() {
+  return (dispatch, getState) => {
+    const { range: formData } = getState();
+    workbook = xlsx.readFile(formData.get('filePath'));
+    dispatch(validateData());
+  };
+}
+
 export function validateData() {
   return (dispatch, getState) => {
     const messages = [];

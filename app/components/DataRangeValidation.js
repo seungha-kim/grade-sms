@@ -9,14 +9,15 @@ import cs from './commonStyles.css';
 type Props = {
   formData: IMap<string, any>,
   nextStep: () => void,
-  previousStep: () => void
+  previousStep: () => void,
+  revalidate: () => void
 };
 
 export default class DataRangeValidation extends Component {
   props: Props;
 
   render() {
-    const { formData, nextStep, previousStep } = this.props;
+    const { formData, nextStep, previousStep, revalidate } = this.props;
     return (<div>
       <HelpText>
         앞에서 입력한 범위에 대한 데이터의 검사 결과입니다. <br />
@@ -25,7 +26,9 @@ export default class DataRangeValidation extends Component {
       </HelpText>
       <pre style={{ backgroundColor: '#eee', padding: 20 }}>{formData.get('dataValidationMessage')}</pre>
       <div className={cs.buttonWrap}>
+
         <RaisedButton label="뒤로" secondary onClick={previousStep} />
+        <RaisedButton label="재검사" primary onClick={revalidate} />
         <RaisedButton label="다음" primary disabled={!formData.get('allDataValid')} onClick={nextStep} />
       </div>
     </div>);

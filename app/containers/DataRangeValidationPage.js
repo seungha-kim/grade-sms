@@ -2,7 +2,7 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import DataRangeValidation from '../components/DataRangeValidation';
 import { nextStep, previousStep } from '../actions/step';
-import { calculateStat } from '../actions/range';
+import { revalidate, calculateStat } from '../actions/range';
 import { initializeTemplateDataFromRange } from '../actions/templateForm';
 
 function mapStateToProps({ range: formData }) {
@@ -18,7 +18,8 @@ function mapDispatchToProps(dispatch) {
       disp(initializeTemplateDataFromRange());
       disp(nextStep());
     },
-    previousStep
+    previousStep,
+    revalidate
   }, dispatch);
 }
 

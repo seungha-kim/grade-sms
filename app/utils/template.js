@@ -95,6 +95,5 @@ export function render(stat, templateForm, exactIndex = null) {
     homeworks: homeworksData,
     chartColors
   };
-  console.log(templateData);
   return ejs.render(template, templateData);
 }
