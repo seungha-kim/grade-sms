@@ -256,7 +256,28 @@ export function validateData() {
         }
       }
     });
-    messages.push(`검색된 모든 반 : \n${Object.keys(classes).join('\n')}`);
+    messages.push(`\n검색된 모든 반 : \n${Object.keys(classes).join('\n')}`);
+
+    // 전화번호 검사
+    const phoneAddresses = rangeToAddresses(formData.get('privacyRangeSet').get('phone').get('range'));
+    let wrongPhoneExists = false;
+    phoneAddresses.forEach(pa => {
+      const phone = sheet[pa].v;
+      if ( // FIXME: 다른 곳으로 빼야 함
+        phone.match(/010-[0-9]{4}-[0-9]{4}/) == null
+        && phone.match(/01[16789]-[0-9]{3,4}-[0-9]{4}/) == null
+      ) {
+        if (!wrongPhoneExists) {
+          messages.push('\n잘못된 전화번호 :');
+          wrongPhoneExists = true;
+        }
+        messages.push(`${phone} (${pa})`);
+      }
+    });
+    if (wrongPhoneExists) {
+      messages.push('경고: 잘못된 전화번호에 대한 성적표는 생성되지만, 발송은 되지 않습니다.');
+    }
+
     messages.push('\n모든 검사 과정을 통과했습니다.');
     dispatch(updateDataValidation(messages.join('\n'), true));
   };
