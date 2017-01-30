@@ -3,7 +3,7 @@ import mkdirp from 'mkdirp';
 import path from 'path';
 import fs from 'fs';
 import { createHash } from 'crypto';
-
+import format from 'date-fns/format';
 import { newError } from './errorMessage';
 import { render } from '../utils/template';
 import {
@@ -13,10 +13,9 @@ import {
 import { nextStep } from '../actions/step';
 
 export function defaultDestDir() {
-  return (dispatch, getState) => {
-    const { templateForm } = getState();
+  return (dispatch) => {
     const docPath = remote.app.getPath('documents');
-    const dir = templateForm.misc.period.value.replace(/[^0-9]/g, '');
+    const dir = format(new Date(), 'YYYYMMDDHHmmss');
     dispatch(updateDestDir(path.join(docPath, 'sms_report', dir)));
   };
 }
