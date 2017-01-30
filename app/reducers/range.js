@@ -16,6 +16,9 @@ export const REMOVE_HOMEWORK = 'REMOVE_HOMEWORK';
 export const RESET_FORM_DATA = 'RESET_FORM_DATA';
 export const UPDATE_DATA_VALIDATION = 'UPDATE_DATA_VALIDATION';
 
+export const UPDATE_SHEET_NAMES = 'UPDATE_SHEET_NAMES';
+export const UPDATE_SELECTED_SHEET = 'UPDATE_SELECTED_SHEET';
+
 let count = 0;
 function newKey() {
   count += 1;
@@ -68,7 +71,9 @@ const initialState = I.Map({
   homeworkRangeSets: I.List(),
   allRangesValid: false,
   allDataValid: false,
-  dataValidationMessage: ''
+  dataValidationMessage: '',
+  sheetNames: null,
+  selectedSheetIndex: null
 });
 
 export function traverseAllFields(state, traverseFunction) {
@@ -112,7 +117,9 @@ export default function xlsx(state = initialState, action) {
     case RESET_FORM_DATA:
       return initialState;
     case SELECT_FILE:
-      return state.set('filePath', payload);
+      return state
+        .set('filePath', payload)
+        .set('selectedSheetIndex', null);
     case UPDATE_RANGE:
       return updateAllFieldsByKey(state, payload.fieldKey, field => (
         field
@@ -146,6 +153,10 @@ export default function xlsx(state = initialState, action) {
       return state
         .set('dataValidationMessage', payload.dataValidationMessage)
         .set('allDataValid', payload.allDataValid);
+    case UPDATE_SHEET_NAMES:
+      return state.set('sheetNames', payload);
+    case UPDATE_SELECTED_SHEET:
+      return state.set('selectedSheetIndex', payload);
     default:
       return state;
   }

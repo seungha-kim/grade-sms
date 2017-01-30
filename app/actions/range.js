@@ -14,6 +14,8 @@ import {
   REMOVE_HOMEWORK,
   RESET_FORM_DATA,
   UPDATE_DATA_VALIDATION,
+  UPDATE_SHEET_NAMES,
+  UPDATE_SELECTED_SHEET,
   traverseAllFields
 } from '../reducers/range';
 
@@ -28,6 +30,20 @@ export function selectFile(name: string) {
   return {
     type: SELECT_FILE,
     payload: name
+  };
+}
+
+export function updateSheetNames(sheetNames: ?Array<string>) {
+  return {
+    type: UPDATE_SHEET_NAMES,
+    payload: sheetNames
+  };
+}
+
+export function updateSelectedSheet(sheetIndex: ?number) {
+  return {
+    type: UPDATE_SELECTED_SHEET,
+    payload: sheetIndex
   };
 }
 
@@ -48,18 +64,14 @@ export function showOpenDialog() {
         const f = filePaths[0];
         workbook = xlsx.readFile(f);
         dispatch(selectFile(f));
+        dispatch(updateSheetNames(workbook.SheetNames.slice()));
       }
     });
   };
 }
 
-function queryDataRange(rangeString: ?string) {
+function queryDataRange(rangeString: ?string, sheet) {
   if (rangeString == null) return;
-  if (workbook == null) return; // FIXME
-  const sheetName = workbook.SheetNames[0]; // FIXME
-  if (sheetName == null) return;
-  const sheet = workbook.Sheets[sheetName];
-  // parse range
   const range = rangeString.split(':');
   if (range.length !== 2 || range[0] === '' || range[1] === '') return;
   const left = sheet[range[0]];
@@ -114,8 +126,11 @@ export function updateRangeThunk(fieldKey: string, range: string) {
 }
 
 function validateRange(fieldKey, range) {
-  return (dispatch) => {
-    const queried: Array<string> = queryDataRange(range);
+  return (dispatch, getState) => {
+    if (workbook == null) return;
+    const selectedSheetIndex = getState().range.get('selectedSheetIndex');
+    const sheetName = workbook.SheetNames[selectedSheetIndex];
+    const queried: Array<string> = queryDataRange(range, workbook.Sheets[sheetName]);
     if (queried == null || queried.length !== 2) {
       dispatch(updateRangeError(fieldKey, '잘못된 범위입니다.'));
     } else {
