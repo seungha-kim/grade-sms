@@ -29,8 +29,8 @@
   },
   "browserslist": "chrome 50",
   "build": {
-    "productName": "성적표 발송 프로그램",
-    "appId": "me.seungha.GradeSMS",
+    "productName": "JSM Report",
+    "appId": "me.seungha.jsm-report",
     "files": [
       "dist/",
       "node_modules/",

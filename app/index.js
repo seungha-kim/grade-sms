@@ -6,9 +6,12 @@ import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import { ipcRenderer } from 'electron';
 
 import {
-  visibleSendPage,
-  visibleSettingPage
+  openSendPage,
+  openSettingPage
 } from './actions/subPage';
+import {
+  loadSetting
+} from './actions/setting';
 import SendPage from './containers/SendPage';
 import SettingPage from './containers/SettingPage';
 import configureStore from './store/configureStore';
@@ -40,12 +43,14 @@ render(
 ipcRenderer.on('subPage', (event, message) => {
   switch (message) {
     case 'send':
-      store.dispatch(visibleSendPage());
+      store.dispatch(openSendPage());
       break;
     case 'setting':
-      store.dispatch(visibleSettingPage());
+      store.dispatch(openSettingPage());
       break;
     default:
       console.error(`wrong route: ${message}`);
   }
 });
+
+store.dispatch(loadSetting());

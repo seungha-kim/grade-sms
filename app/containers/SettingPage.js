@@ -2,9 +2,9 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 
 import Setting from '../components/Setting';
-import { invisibleSettingPage } from '../actions/subPage';
+import { closeSettingPage } from '../actions/subPage';
 import {
-  validateSetting,
+  saveSetting,
   updateSettingFieldValue
 } from '../actions/setting';
 
@@ -17,8 +17,8 @@ function mapStateToProps({ subPage, setting }) {
 
 function mapDispatchToProps(dispatch) {
   return bindActionCreators({
-    close: invisibleSettingPage,
-    save: validateSetting,
+    close: closeSettingPage,
+    save: saveSetting,
     updateField: updateSettingFieldValue
   }, dispatch);
 }

@@ -1,8 +1,8 @@
 // @flow
 import { Record } from 'immutable';
 
+export const INITIALIZE_SETTING = 'INITIALIZE_SETTING';
 export const UPDATE_SETTING_FIELD_VALUE = 'UPDATE_FIELD_VALUE';
-export const INITIALIZE_VALID_SETTING = 'INITIALIZE_VALID_SETTING';
 export const UPDATE_SETTING_LOADING = 'UPDATE_SETTING_LOADING';
 export const UPDATE_SETTING_VALIDITY = 'UPDATE_SETTING_VALIDITY';
 
@@ -39,8 +39,9 @@ export default function step(state: SettingState = initialState, action: any) {
   switch (type) {
     case UPDATE_SETTING_FIELD_VALUE:
       return state.update(payload.field, f => f.set('value', payload.value));
-    case INITIALIZE_VALID_SETTING:
-      return payload.entries().reduce((s: SettingState, [field, value]) => s.update(field, f => f.set('value', value).set('valid', true).set('dirty', true)), state);
+    case INITIALIZE_SETTING:
+      return Object.entries(payload)
+        .reduce((s: SettingState, [field, value]) => s.update(field, f => f.set('value', value)), state);
     case UPDATE_SETTING_LOADING:
       return state.set('loading', true);
     case UPDATE_SETTING_VALIDITY:

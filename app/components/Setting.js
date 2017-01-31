@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import Dialog from 'material-ui/Dialog';
 import TextField from 'material-ui/TextField';
 import FlatButton from 'material-ui/FlatButton';
+import CircularProgress from 'material-ui/CircularProgress';
 
 import HelpText from './HelpText';
 import type { SettingState } from '../reducers/setting';
@@ -20,11 +21,13 @@ export default class Setting extends Component {
     const { open, close, save, updateField, setting } = this.props;
     const actions = [
       <FlatButton
+        disabled={setting.loading}
         label="저장"
         primary
         onTouchTap={save}
       />,
       <FlatButton
+        disabled={setting.loading}
         label="취소"
         secondary
         onTouchTap={close}
@@ -39,36 +42,42 @@ export default class Setting extends Component {
     >
       <div style={{ display: 'flex', flexFlow: 'column' }}>
         <TextField
+          disabled={setting.loading}
           floatingLabelText="AWS S3 bucket name"
           value={setting.s3Bucket.value || ''}
           errorText={setting.s3Bucket.errorText}
           onChange={e => updateField('s3Bucket', e.target.value)}
         />
         <TextField
+          disabled={setting.loading}
           floatingLabelText="AWS access key ID"
           value={setting.accessKeyId.value || ''}
           errorText={setting.accessKeyId.errorText}
           onChange={e => updateField('accessKeyId', e.target.value)}
         />
         <TextField
+          disabled={setting.loading}
           floatingLabelText="AWS secret access key"
           value={setting.secretAccessKey.value || ''}
           errorText={setting.secretAccessKey.errorText}
           onChange={e => updateField('secretAccessKey', e.target.value)}
         />
         <TextField
+          disabled={setting.loading}
           floatingLabelText="Google API key"
           value={setting.googleApiKey.value || ''}
           errorText={setting.googleApiKey.errorText}
           onChange={e => updateField('googleApiKey', e.target.value)}
         />
         <TextField
+          disabled={setting.loading}
           floatingLabelText="문자나라 아이디"
           value={setting.munjanaraId.value || ''}
           errorText={setting.munjanaraId.errorText}
           onChange={e => updateField('munjanaraId', e.target.value)}
         />
         <TextField
+          disabled={setting.loading}
           floatingLabelText="문자나라 2차 패스워드"
           value={setting.munjanaraPassword.value || ''}
           errorText={setting.munjanaraPassword.errorText}

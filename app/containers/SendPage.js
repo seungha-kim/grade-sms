@@ -2,7 +2,7 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 
 import Send from '../components/Send';
-import { invisibleSendPage } from '../actions/subPage';
+import { closeSendPage } from '../actions/subPage';
 
 function mapStateToProps({ subPage }) {
   return {
@@ -12,7 +12,7 @@ function mapStateToProps({ subPage }) {
 
 function mapDispatchToProps(dispatch) {
   return bindActionCreators({
-    close: invisibleSendPage
+    close: closeSendPage
   }, dispatch);
 }
 

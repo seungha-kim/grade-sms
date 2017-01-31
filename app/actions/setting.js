@@ -8,13 +8,17 @@ import {
   UPDATE_SETTING_FIELD_VALUE,
   UPDATE_SETTING_LOADING,
   UPDATE_SETTING_VALIDITY,
-  INITIALIZE_VALID_SETTING
+  INITIALIZE_SETTING
 } from '../reducers/setting';
+import {
+  closeSettingPage
+} from '../actions/subPage';
 
 const REGION = 'ap-northeast-2';
 
 export function validateSetting() {
   return (dispatch, getState) => {
+    dispatch(updateSettingLoading());
     const { setting } = getState();
     const result = {
       s3Bucket: null,
@@ -24,7 +28,7 @@ export function validateSetting() {
       munjanaraId: null,
       munjanaraPassword: null
     };
-    Promise.all([
+    return Promise.all([
       new Promise(resolve => {
         // aws
         const s3 = new S3({
@@ -70,6 +74,33 @@ export function validateSetting() {
       })
     ]).then(() => {
       dispatch(updateSettingValidity(result));
+      return Object.values(result).every(v => v == null);
+    }).catch(err => {
+      throw err;
+    });
+  };
+}
+
+export function saveSetting() {
+  return (dispatch, getState) => {
+    validateSetting()(dispatch, getState).then(valid => {
+      if (valid) {
+        const userDataDir = remote.app.getPath('userData');
+        const settingPath = path.join(userDataDir, 'jsm-report.json');
+        const { setting } = getState();
+        const data = JSON.stringify({
+          s3Bucket: setting.s3Bucket.value,
+          accessKeyId: setting.accessKeyId.value,
+          secretAccessKey: setting.secretAccessKey.value,
+          googleApiKey: setting.googleApiKey.value,
+          munjanaraId: setting.munjanaraId.value,
+          munjanaraPassword: setting.munjanaraPassword.value
+        });
+        fs.writeFile(settingPath, data, err => {
+          if (err) throw err;
+          dispatch(closeSettingPage());
+        });
+      }
       return true;
     }).catch(err => {
       throw err;
@@ -80,10 +111,10 @@ export function validateSetting() {
 export function loadSetting() {
   return (dispatch) => {
     const userDataDir = remote.app.getPath('userData');
-    const settingPath = path.join(userDataDir, 'setting.json');
+    const settingPath = path.join(userDataDir, 'jsm-report.json');
     fs.readFile(settingPath, { encoding: 'utf-8' }, (err, data) => {
       if (err) throw err;
-      dispatch(initializeValidSetting(JSON.parse(data)));
+      dispatch(initializeSetting(JSON.parse(data)));
     });
   };
 }
@@ -97,9 +128,9 @@ type SavedSetting = {
   munjanaraPassword: ?string
 };
 
-export function initializeValidSetting(setting: SavedSetting) {
+export function initializeSetting(setting: SavedSetting) {
   return {
-    type: INITIALIZE_VALID_SETTING,
+    type: INITIALIZE_SETTING,
     payload: setting
   };
 }

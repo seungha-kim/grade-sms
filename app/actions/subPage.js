@@ -1,31 +1,31 @@
 import {
-  VISIBLE_SEND_PAGE,
-  VISIBLE_SETTING_PAGE,
-  INVISIBLE_SEND_PAGE,
-  INVISIBLE_SETTING_PAGE
+  OPEN_SEND_PAGE,
+  OPEN_SETTING_PAGE,
+  CLOSE_SEND_PAGE,
+  CLOSE_SETTING_PAGE
 } from '../reducers/subPage';
 
-export function visibleSendPage() {
+export function openSendPage() {
   return {
-    type: VISIBLE_SEND_PAGE
+    type: OPEN_SEND_PAGE
   };
 }
 
-export function invisibleSendPage() {
+export function closeSendPage() {
   return {
-    type: INVISIBLE_SEND_PAGE
+    CLOSE_SEND_PAGE
   };
 }
 
-export function visibleSettingPage() {
+export function openSettingPage() {
   return {
-    type: VISIBLE_SETTING_PAGE
+    type: OPEN_SETTING_PAGE
   };
 }
 
-export function invisibleSettingPage() {
+export function closeSettingPage() {
   return {
-    type: INVISIBLE_SETTING_PAGE
+    type: CLOSE_SETTING_PAGE
   };
 }
 
