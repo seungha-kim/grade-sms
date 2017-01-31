@@ -28,34 +28,28 @@ function updateDestDir(destDir) {
   };
 }
 
-function mkdirpPromise(destDir) {
-  return new Promise((resolve) => {
-    mkdirp(destDir, (err) => {
-      if (err) {
-        throw err;
-      } else {
-        resolve(destDir);
-      }
-    });
-  });
-}
-
 export function generateReports() {
   return (dispatch, getState) => {
     dispatch(updateGenerating(true));
     const { templateForm, stat, generate } = getState();
     const destDir = generate.destDir;
-    mkdirpPromise(destDir).then(() => {
+    const plan = {
+      dt: format(new Date(), 'YYYYMMDDHHmmss'),
+      items: []
+    };
+    mkdirp(destDir, err => {
+      if (err) throw err;
       function* iter() {
         for (let i = 0; i < stat.individual.length; i += 1) {
-          yield new Promise((resolve, reject) => {
+          const ind = stat.individual[i];
+          yield new Promise(resolve => {
             setTimeout(() => {
               const rendered = render(stat, templateForm, i);
               const hashString = createHash('sha256').update(rendered).digest('hex').slice(0, 8);
-              const fileName = `${stat.individual[i].id}_${hashString}.html`;
-              fs.writeFile(path.join(destDir, fileName), rendered, { encoding: 'utf-8' }, err => {
-                if (err) reject(err);
-                console.log(`generated: ${fileName}`);
+              const fileName = `${ind.id}_${hashString}.html`;
+              fs.writeFile(path.join(destDir, fileName), rendered, { encoding: 'utf-8' }, errr => {
+                if (errr) throw errr;
+                plan.items.push([ind.id, ind.phone, fileName]);
                 dispatch({ type: PROGRESS_GENERATING });
                 resolve();
               });
@@ -64,18 +58,18 @@ export function generateReports() {
         }
       }
       Promise.all(iter())
-        .then(() => {
-          dispatch(nextStep());
-          return true;
-        })
-        .catch(err => {
-          console.error(err);
-          dispatch(newError(err.toString()));
+        .then(() => new Promise(resolve => {
+          fs.writeFile(path.join(destDir, 'plan.json'), JSON.stringify(plan), { encoding: 'utf-8' }, errr => {
+            if (errr) throw errr;
+            dispatch(nextStep());
+            resolve();
+          });
+        }))
+        .catch(errr => {
+          console.error(errr);
+          dispatch(newError(errr.toString()));
         });
       return true;
-    }).catch(err => {
-      console.error(err);
-      dispatch(newError(err.toString()));
     });
   };
 }
