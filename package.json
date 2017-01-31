@@ -146,6 +146,8 @@
     "webpack-validator": "^2.3.0"
   },
   "dependencies": {
+    "aws-sdk": "^2.9.0",
+    "axios": "^0.15.3",
     "date-fns": "^1.27.1",
     "ejs": "^2.5.5",
     "electron-debug": "^1.1.0",

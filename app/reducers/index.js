@@ -8,6 +8,8 @@ import errorMessage from './errorMessage';
 import stat from './stat';
 import templateForm from './templateForm';
 import generate from './generate';
+import subPage from './subPage';
+import setting from './setting';
 
 const rootReducer = combineReducers({
   counter,
@@ -17,7 +19,9 @@ const rootReducer = combineReducers({
   errorMessage,
   stat,
   templateForm,
-  generate
+  generate,
+  subPage,
+  setting
 });
 
 export default rootReducer;

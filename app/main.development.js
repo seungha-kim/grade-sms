@@ -77,14 +77,14 @@ app.on('ready', async () => {
   template = [{
     label: '메뉴',
     submenu: [{
-      label: '설정',
-      click() {
-        mainWindow.webContents.reload();
-      }
-    }, {
       label: '성적표 발송',
       click() {
-        mainWindow.webContents.reload();
+        mainWindow.webContents.send('subPage', 'send');
+      }
+    }, {
+      label: '발송 설정',
+      click() {
+        mainWindow.webContents.send('subPage', 'setting');
       }
     }, {
       type: 'separator'
