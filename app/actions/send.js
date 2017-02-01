@@ -15,6 +15,8 @@ import {
   UPDATE_TEMPLATE_STRING
 } from '../reducers/send';
 
+import { PLAN_FILE_NAME } from '../utils/fileNames';
+
 const encoder = new TextEncoder('euc-kr', { NONSTANDARD_allowLegacyEncoding: true });
 
 export function onCommandOpenSelectSourceDirPage() { // T.T
@@ -29,22 +31,13 @@ export function onCommandOpenSelectSourceDirPage() { // T.T
   };
 }
 
-/*
-    plan.json 구조 (`app/actions/generate.js` 참고)
-    const items = [
-      [id, phone, fileName]
-    ]
-    const plan = {
-      dt: format(new Date(), 'YYYYMMDDHHmmss'),
-      items
-    };
-*/
 export function showOpenDialog() {
   return (dispatch) => {
     try {
       console.log('showOpenDialog start');
       const [dir] = remote.dialog.showOpenDialog({ properties: ['openDirectory'] });
-      const planPath = path.join(dir, 'plan.json');
+      const planPath = path.join(dir, PLAN_FILE_NAME);
+      // 발송 계획 파일 구조 : `app/actions/generate.js` 참고
       const parsed = JSON.parse(fs.readFileSync(planPath, { encoding: 'utf-8' }));
       const files = fs.readdirSync(dir);
       const matched = parsed.items.every(([, , fileName]) => files.includes(fileName));
@@ -113,5 +106,11 @@ export function renderExampleMessage(templateString) {
       console.error(err);
       dispatch(updateTemplateString(templateString, '', true, 0));
     }
+  };
+}
+
+export function send() {
+  return (dispatch, getState) => {
+
   };
 }

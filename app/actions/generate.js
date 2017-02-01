@@ -4,6 +4,7 @@ import path from 'path';
 import fs from 'fs';
 import { createHash } from 'crypto';
 import format from 'date-fns/format';
+
 import { newError } from './errorMessage';
 import { render, defaultDestBaseDir } from '../utils/template';
 import {
@@ -12,6 +13,7 @@ import {
   PROGRESS_GENERATING
 } from '../reducers/generate';
 import { nextStep } from '../actions/step';
+import { PLAN_FILE_NAME } from '../utils/fileNames';
 
 export function defaultDestDir() {
   return (dispatch) => {
@@ -58,7 +60,7 @@ export function generateReports() {
       }
       Promise.all(iter())
         .then(() => new Promise(resolve => {
-          fs.writeFile(path.join(destDir, 'plan.json'), JSON.stringify(plan), { encoding: 'utf-8' }, errr => {
+          fs.writeFile(path.join(destDir, PLAN_FILE_NAME), JSON.stringify(plan), { encoding: 'utf-8' }, errr => {
             if (errr) throw errr;
             dispatch(nextStep());
             resolve();

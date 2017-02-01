@@ -7,7 +7,7 @@ import HelpText from './HelpText';
 type Props = {
   open: boolean,
   close: () => void,
-  next: () => void,
+  send: () => void,
   isError: boolean,
   templateString: string,
   renderedExampleMessage: string,
@@ -21,7 +21,7 @@ export default class MessageTemplate extends Component {
     const {
       open,
       close,
-      next,
+      send,
       templateString,
       renderExampleMessage,
       renderedExampleMessage,
@@ -35,9 +35,9 @@ export default class MessageTemplate extends Component {
         onTouchTap={close}
       />,
       <FlatButton
-        label="다음"
+        label="발송"
         primary
-        onTouchTap={next}
+        onTouchTap={send}
         disabled={templateString === '' || isError}
       />
     ];
