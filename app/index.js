@@ -6,7 +6,7 @@ import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import { ipcRenderer } from 'electron';
 
 import {
-  openSendPage,
+  openSelectSourceDirPage,
   openSettingPage
 } from './actions/subPage';
 import {
@@ -14,6 +14,7 @@ import {
 } from './actions/setting';
 import SendPage from './containers/SendPage';
 import SettingPage from './containers/SettingPage';
+import SelectSourceDirPage from './containers/SelectSourceDirPage';
 import configureStore from './store/configureStore';
 import './app.global.css';
 import ErrorMessageCont from './containers/ErrorMessageCont';
@@ -34,6 +35,7 @@ render(
         <ErrorMessageCont />
         <SendPage />
         <SettingPage />
+        <SelectSourceDirPage />
       </div>
     </MuiThemeProvider>
   </Provider>,
@@ -43,7 +45,7 @@ render(
 ipcRenderer.on('subPage', (event, message) => {
   switch (message) {
     case 'send':
-      store.dispatch(openSendPage());
+      store.dispatch(openSelectSourceDirPage());
       break;
     case 'setting':
       store.dispatch(openSettingPage());

@@ -2,7 +2,9 @@ import {
   OPEN_SEND_PAGE,
   OPEN_SETTING_PAGE,
   CLOSE_SEND_PAGE,
-  CLOSE_SETTING_PAGE
+  CLOSE_SETTING_PAGE,
+  OPEN_SELECT_SOURCE_DIR_PAGE,
+  CLOSE_SELECT_SOURCE_DIR_PAGE
 } from '../reducers/subPage';
 
 export function openSendPage() {
@@ -11,9 +13,20 @@ export function openSendPage() {
   };
 }
 
+export function openSelectSourceDirPage() {
+  return {
+    type: OPEN_SELECT_SOURCE_DIR_PAGE
+  };
+}
+
+export function closeSelectSourceDirPage() {
+  return {
+    type: CLOSE_SELECT_SOURCE_DIR_PAGE
+  };
+}
 export function closeSendPage() {
   return {
-    CLOSE_SEND_PAGE
+    type: CLOSE_SEND_PAGE
   };
 }
 

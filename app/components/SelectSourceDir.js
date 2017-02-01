@@ -8,7 +8,7 @@ type Props = {
   send: () => void
 };
 
-export default class Send extends Component {
+export default class selectSourceDir extends Component {
   props: Props;
   render() {
     const { open, close, send } = this.props;
@@ -25,7 +25,7 @@ export default class Send extends Component {
       />
     ];
     return (<Dialog
-      title="성적표 발송"
+      title="성적표 폴더 선택"
       open={open}
       modal
       actions={actions}
