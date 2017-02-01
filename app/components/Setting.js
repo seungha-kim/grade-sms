@@ -2,9 +2,7 @@ import React, { Component } from 'react';
 import Dialog from 'material-ui/Dialog';
 import TextField from 'material-ui/TextField';
 import FlatButton from 'material-ui/FlatButton';
-import CircularProgress from 'material-ui/CircularProgress';
 
-import HelpText from './HelpText';
 import type { SettingState } from '../reducers/setting';
 
 type Props = {
@@ -34,7 +32,7 @@ export default class Setting extends Component {
       />
     ];
     return (<Dialog
-      title="발송 설정"
+      title="외부 서비스 설정"
       open={open}
       modal
       actions={actions}

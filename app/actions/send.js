@@ -5,12 +5,29 @@ import handlebars from 'handlebars';
 import { TextEncoder } from 'text-encoding';
 
 import {
+  openSettingPage,
+  openSelectSourceDirPage
+} from './subPage';
+
+import {
   UPDATE_SOURCE_DIR,
   UPDATE_SOURCE_DIR_ERROR_TEXT,
   UPDATE_TEMPLATE_STRING
 } from '../reducers/send';
 
 const encoder = new TextEncoder('euc-kr', { NONSTANDARD_allowLegacyEncoding: true });
+
+export function onCommandOpenSelectSourceDirPage() { // T.T
+  return (dispatch, getState) => {
+    const { setting } = getState();
+    if (setting.valid()) {
+      dispatch(openSelectSourceDirPage());
+    } else {
+      alert('외부 서비스 설정이 제대로 되지 않았습니다. 설정을 한 뒤 [메뉴 - 성적표 발송]을 실행해주세요.');
+      dispatch(openSettingPage());
+    }
+  };
+}
 
 /*
     plan.json 구조 (`app/actions/generate.js` 참고)
@@ -61,14 +78,8 @@ export function initializeTemplateStringIfBlanked() {
     const { send } = getState();
     if (send.messageTemplateString === '') {
       dispatch(renderExampleMessage('정상모 수학 성적표 {{이름}}({{원번}})'));
-      // case UPDATE_TEMPLATE_STRING:
-      // return state
-      //   .set('messageTemplateError', payload.messageTemplateError || false)
-      //   .set('messageTemplateString', payload.messageTemplateString)
-      //   .set('renderedExampleMessage', payload.renderedExampleMessage)
-      //   .set('exampleBytes', payload.exampleBytes);
     }
-  }
+  };
 }
 
 export function updateTemplateString(

@@ -12,6 +12,9 @@ export class Field extends Record({
 }) {
   value: ?string;
   errorText: ?string;
+  valid() {
+    return this.value != null && this.errorText == null;
+  }
 }
 
 export class SettingState extends Record({
@@ -30,6 +33,16 @@ export class SettingState extends Record({
   munjanaraId: Field;
   munjanaraPassword: Field;
   loading: boolean;
+  valid() {
+    return (
+      this.s3Bucket.valid()
+      && this.accessKeyId.valid()
+      && this.secretAccessKey.valid()
+      && this.googleApiKey.valid()
+      && this.munjanaraId.valid()
+      && this.munjanaraPassword.valid()
+    );
+  }
 }
 
 const initialState = new SettingState();

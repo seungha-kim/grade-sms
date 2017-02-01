@@ -6,9 +6,13 @@ import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import { ipcRenderer } from 'electron';
 
 import {
-  openSelectSourceDirPage,
   openSettingPage
 } from './actions/subPage';
+
+import {
+  onCommandOpenSelectSourceDirPage
+} from './actions/send';
+
 import {
   loadSetting
 } from './actions/setting';
@@ -47,7 +51,7 @@ render(
 ipcRenderer.on('subPage', (event, message) => {
   switch (message) {
     case 'send':
-      store.dispatch(openSelectSourceDirPage());
+      store.dispatch(onCommandOpenSelectSourceDirPage());
       break;
     case 'setting':
       store.dispatch(openSettingPage());

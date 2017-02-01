@@ -5,7 +5,7 @@ import fs from 'fs';
 import { createHash } from 'crypto';
 import format from 'date-fns/format';
 import { newError } from './errorMessage';
-import { render } from '../utils/template';
+import { render, defaultDestBaseDir } from '../utils/template';
 import {
   UPDATE_DEST_DIR,
   UPDATE_GENERATING,
@@ -15,9 +15,8 @@ import { nextStep } from '../actions/step';
 
 export function defaultDestDir() {
   return (dispatch) => {
-    const docPath = remote.app.getPath('documents');
     const dir = format(new Date(), 'YYYYMMDDHHmmss');
-    dispatch(updateDestDir(path.join(docPath, 'sms_report', dir)));
+    dispatch(updateDestDir(path.join(defaultDestBaseDir(), dir)));
   };
 }
 

@@ -82,7 +82,7 @@ app.on('ready', async () => {
         mainWindow.webContents.send('subPage', 'send');
       }
     }, {
-      label: '발송 설정',
+      label: '외부 서비스 설정',
       click() {
         mainWindow.webContents.send('subPage', 'setting');
       }

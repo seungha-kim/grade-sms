@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import Dialog from 'material-ui/Dialog';
 import FlatButton from 'material-ui/FlatButton';
 import TextField from 'material-ui/TextField';
+import { defaultDestBaseDir } from '../utils/template';
+
 import HelpText from './HelpText';
 
 type Props = {
@@ -37,7 +39,8 @@ export default class SelectSourceDir extends Component {
       actions={actions}
     >
       <HelpText>
-        이전 단계에서 생성된 성적표가 들어있는 폴더를 선택해 주세요.
+        이전 단계에서 생성된 성적표가 들어있는 폴더를 선택해 주세요. <br />
+        (성적표 생성 시 경로를 변경하지 않았다면 <code>{defaultDestBaseDir()}</code> 안에 있습니다.)
       </HelpText>
       <TextField
         floatingLabelText="성적표 폴더"

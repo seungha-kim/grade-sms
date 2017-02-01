@@ -1,4 +1,6 @@
 import ejs from 'ejs';
+import { remote } from 'electron';
+import path from 'path';
 
 import template from './report.ejs';
 
@@ -96,4 +98,9 @@ export function render(stat, templateForm, exactIndex = null) {
     chartColors
   };
   return ejs.render(template, templateData);
+}
+
+export function defaultDestBaseDir() {
+  const docPath = remote.app.getPath('documents');
+  return path.join(docPath, 'jsm_report');
 }
