@@ -10,6 +10,7 @@ import templateForm from './templateForm';
 import generate from './generate';
 import subPage from './subPage';
 import setting from './setting';
+import send from './send';
 
 const rootReducer = combineReducers({
   counter,
@@ -21,7 +22,8 @@ const rootReducer = combineReducers({
   templateForm,
   generate,
   subPage,
-  setting
+  setting,
+  send
 });
 
 export default rootReducer;

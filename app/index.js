@@ -20,6 +20,7 @@ import './app.global.css';
 import ErrorMessageCont from './containers/ErrorMessageCont';
 // import HomePage from './containers/HomePage';
 import HomePage from './containers/HomePage';
+import MessageTemplatePage from './containers/MessageTemplatePage';
 
 // Needed for onTouchTap
 // http://stackoverflow.com/a/34015469/988941
@@ -36,6 +37,7 @@ render(
         <SendPage />
         <SettingPage />
         <SelectSourceDirPage />
+        <MessageTemplatePage />
       </div>
     </MuiThemeProvider>
   </Provider>,

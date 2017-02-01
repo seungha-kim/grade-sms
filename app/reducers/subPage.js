@@ -10,10 +10,13 @@ export const CLOSE_SELECT_SOURCE_DIR_PAGE = 'CLOSE_SELECT_SOURCE_DIR_PAGE';
 export class State extends Record({
   selectSourceDir: false,
   setting: false,
-  send: false
+  send: false,
+  messageTemplate: true,
 }) {
+  selectSourceDir: boolean;
   setting: boolean;
   send: boolean;
+  messageTemplate: boolean;
 }
 
 const initialState = new State();
