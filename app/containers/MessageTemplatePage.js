@@ -3,7 +3,8 @@ import { connect } from 'react-redux';
 
 import MessageTemplate from '../components/MessageTemplate';
 import { renderExampleMessage } from '../actions/send';
-import { closeMessageTemplate } from '../actions/subPage'
+import { closeMessageTemplate } from '../actions/subPage';
+
 function mapStateToProps({ subPage, send }) {
   return {
     open: subPage.messageTemplate,
