@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 
 import MessageTemplate from '../components/MessageTemplate';
 import { renderExampleMessage } from '../actions/send';
-
+import { closeMessageTemplate } from '../actions/subPage'
 function mapStateToProps({ subPage, send }) {
   return {
     open: subPage.messageTemplate,
@@ -16,7 +16,7 @@ function mapStateToProps({ subPage, send }) {
 
 function mapDispatchToProps(dispatch) {
   return bindActionCreators({
-    close: () => {},
+    close: closeMessageTemplate,
     next: () => {},
     renderExampleMessage
   }, dispatch);

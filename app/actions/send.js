@@ -56,6 +56,21 @@ export function updateSourceDirErrorText(errorText) {
   };
 }
 
+export function initializeTemplateStringIfBlanked() {
+  return (dispatch, getState) => {
+    const { send } = getState();
+    if (send.messageTemplateString === '') {
+      dispatch(renderExampleMessage('정상모 수학 성적표 {{이름}}({{원번}})'));
+      // case UPDATE_TEMPLATE_STRING:
+      // return state
+      //   .set('messageTemplateError', payload.messageTemplateError || false)
+      //   .set('messageTemplateString', payload.messageTemplateString)
+      //   .set('renderedExampleMessage', payload.renderedExampleMessage)
+      //   .set('exampleBytes', payload.exampleBytes);
+    }
+  }
+}
+
 export function updateTemplateString(
   messageTemplateString,
   renderedExampleMessage,

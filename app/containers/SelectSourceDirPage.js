@@ -2,8 +2,8 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 
 import SelectSourceDir from '../components/SelectSourceDir';
-import { closeSelectSourceDirPage } from '../actions/subPage';
-import { showOpenDialog } from '../actions/send';
+import { closeSelectSourceDirPage, openMessageTemplate } from '../actions/subPage';
+import { showOpenDialog, initializeTemplateStringIfBlanked } from '../actions/send';
 
 function mapStateToProps({ subPage, send }) {
   return {
@@ -17,7 +17,11 @@ function mapDispatchToProps(dispatch) {
   return bindActionCreators({
     close: closeSelectSourceDirPage,
     showOpenDialog,
-    next: () => {}
+    next: () => disp => {
+      disp(initializeTemplateStringIfBlanked());
+      disp(closeSelectSourceDirPage());
+      disp(openMessageTemplate());
+    }
   }, dispatch);
 }
 

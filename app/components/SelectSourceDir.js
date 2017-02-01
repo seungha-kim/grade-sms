@@ -37,8 +37,7 @@ export default class SelectSourceDir extends Component {
       actions={actions}
     >
       <HelpText>
-        이전 단계에서 생성된 성적표가 들어있는 폴더를 선택해 주세요. <br />
-        폴더가 이미 선택되어 있으면 바로 다음으로 넘어가세요.
+        이전 단계에서 생성된 성적표가 들어있는 폴더를 선택해 주세요.
       </HelpText>
       <TextField
         floatingLabelText="성적표 폴더"

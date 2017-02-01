@@ -4,7 +4,9 @@ import {
   CLOSE_SEND_PAGE,
   CLOSE_SETTING_PAGE,
   OPEN_SELECT_SOURCE_DIR_PAGE,
-  CLOSE_SELECT_SOURCE_DIR_PAGE
+  CLOSE_SELECT_SOURCE_DIR_PAGE,
+  OPEN_MESSAGE_TEMPLATE,
+  CLOSE_MESSAGE_TEMPLATE
 } from '../reducers/subPage';
 
 export function openSendPage() {
@@ -42,3 +44,14 @@ export function closeSettingPage() {
   };
 }
 
+export function openMessageTemplate() {
+  return {
+    type: OPEN_MESSAGE_TEMPLATE
+  };
+}
+
+export function closeMessageTemplate() {
+  return {
+    type: CLOSE_MESSAGE_TEMPLATE
+  };
+}
