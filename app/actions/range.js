@@ -358,6 +358,7 @@ export function calculateStat() {
       });
       const individualGrade = _.zipObject(ids, testGrades);
       const individualClass = _.zipObject(ids, testClasses);
+      // NOTE: 점수에 숫자가 아닌 것이 들어가는 것은 평균 및 순위 계산에서 제외
       const statIntermediate = _.chain(ids)
         .zip(testGrades, testClasses)
         .map(([id, grade, cls]) => ({ id, grade: parseFloat(grade), cls }))
@@ -414,6 +415,7 @@ export function calculateStat() {
         ad => sheet[ad].v
       );
       const individualGrade = _.zipObject(ids, grades);
+      // NOTE: 점수에 숫자가 아닌 것이 들어가는 것은 평균 및 순위 계산에서 제외
       const statIntermediate = _.chain(ids)
         .zip(grades, classes)
         .map(([id, grade, cls]) => ({ id, grade: parseFloat(grade), cls }))

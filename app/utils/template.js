@@ -44,7 +44,7 @@ export function render(stat, templateForm, exactIndex = null) {
     const gradeDisp = noGrade ? `<strong>${individualGrade[id]}</strong>` : individualGrade[id];
     const grade = noGrade ? 0 : individualGrade[id];
     const className = individualClass[id];
-    const noClass = className === '0' || !className; // FIXME: 다른 곳으로 빼야 함
+    const noClass = className === '0' || !className; // FIXME: 이 기준이 맞는 건가...
     const classAvg = noClass ? 0 : classAvgAllObj[className];
     const classAvgDisp = noClass ? '-' : classAvgAllObj[className].toFixed(2);
     const classAvgAll = [['전체', totalAvg]].concat(Object.entries(classAvgAllObj));

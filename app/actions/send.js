@@ -320,8 +320,18 @@ export function sendReports() {
         // UI 업데이트
         dispatch(updateSendLog(id, logMessage));
         dispatch(completeIndividualSend());
-        throw err; // TODO: 괜찮은가?
       });
+    }
+    const recordFilePath = path.join(sourceDir, RESULT_RECORD_FILE_NAME);
+    let successIds = new Set();
+    if (fs.existsSync(recordFilePath)) {
+      dispatch(updateSendLog('-1', '발송 기록 파일이 존재합니다. 이미 성공한 건은 건너뛰고 실패했거나 아예 발송 기록이 없는 건에 대해 재시도합니다.'));
+      successIds = new Set(fs.readFileSync(recordFilePath, { encoding: 'utf-8' })
+        .split('\n')
+        .filter(l => l !== '')
+        .map(l => JSON.parse(l))
+        .filter(([,, success]) => success === 'success')
+        .map(([, id]) => id));
     }
 
     let i = 0;
@@ -329,13 +339,25 @@ export function sendReports() {
       if (i >= plan.items.length) {
         clearInterval(currentTimeout);
         setTimeout(() => {
-          dispatch(updateSendLog('-1', `\n발송이 완료되었습니다. 폴더에 발송 결과 파일(${LOG_FILE_NAME})이 생성되었습니다.`));
-          dispatch(updateSendLog('-2', '발송 시에 오류가 없었다고 하더라도, 통신사 자체 *스팸 필터*에 의해 메시지가 학부모 휴대폰에 도착하지 않을 가능성이 있습니다. 그런 경우에는 발송 결과 파일을 참고해서 성적표 URL을 학생에게 직접 가르쳐 주거나, 성적표를 직접 인쇄해서 배부할 수 있습니다. 또한 알 수 없는 오류에 생겼을 때 개발자에게 발송 결과 파일을 보내어 문제를 해결할 수도 있습니다.'));
+          dispatch(updateSendLog('-2', `\n발송이 완료되었습니다. 폴더에 발송 결과 파일(${LOG_FILE_NAME})이 생성되었습니다.`));
+          dispatch(updateSendLog('-3', '\n발송 시에 오류가 없었다고 하더라도, 통신사 자체 *스팸 필터*에 의해 메시지가 학부모 휴대폰에 도착하지 않을 가능성이 있습니다. 그런 경우에는 발송 결과 파일을 참고해서 성적표 URL을 학생에게 직접 가르쳐 주거나, 성적표를 직접 인쇄해서 배부할 수 있습니다. 또한 알 수 없는 오류에 생겼을 때 개발자에게 발송 결과 파일을 보내어 문제를 해결할 수도 있습니다.'));
           dispatch({ type: DONE });
         }, 3000);
       } else {
-        process(plan.items[i]); // FIXME: 성공한 발송기록이 있을 경우는 빨리감기
-        i += 1;
+        while (true) {
+          // NOTE: 동시성 문제가 있을 수 있으나... 위에서 별다른 부작용을 일으키지 않으므로 충분히 빠를 것으로 예상됨.
+          const item = plan.items[i];
+          if (item == null) break;
+          const currentId = item[0];
+          if (successIds.has(currentId)) {
+            dispatch(completeIndividualSend());
+            i += 1;
+          } else {
+            process(item);
+            i += 1;
+            break;
+          }
+        }
       }
     }, 1111);
   };

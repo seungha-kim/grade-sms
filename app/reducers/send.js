@@ -64,7 +64,7 @@ export default function send(state: State = initialState, action: any) {
     case UPDATE_SEND_LOG:
       return state.set('log', payload);
     case DONE:
-      return state.set('done', true); // FIXME: 다시 켰을 때 done 상태가 아니도록
+      return state.set('done', true);
     case UPDATE_TEST_PHONE_NUMBER:
       return state.set('testPhoneNumber', payload);
     case DISABLE_SEND_BUTTON:
