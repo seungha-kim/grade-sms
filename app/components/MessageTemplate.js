@@ -3,7 +3,6 @@ import Dialog from 'material-ui/Dialog';
 import FlatButton from 'material-ui/FlatButton';
 import TextField from 'material-ui/TextField';
 import HelpText from './HelpText';
-import Divider from 'material-ui/Divider';
 
 type Props = {
   open: boolean,

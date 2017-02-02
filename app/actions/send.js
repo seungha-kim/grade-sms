@@ -179,13 +179,13 @@ export function sendMessage(receiver, text, callback) {
     const { setting } = getState();
     const smsId = setting.munjanaraId.value;
     const smsPasswd = setting.munjanaraPassword.value;
-    const sender = '010-6330-3082'.replace(/[^0-9]/g, ''); // FIXME
+    const sender = setting.senderPhoneNumber.value;
     axios
       .get('https://www.munjanara.co.kr/MSG/send/web_admin_send.htm', {
         params: {
           userid: smsId,
           passwd: smsPasswd,
-          sender,
+          sender: sender.replace(/[^0-9]/g, ''),
           receiver: receiver.replace(/[^0-9]/g, ''),
           encode: 1,
           message: munjanaraEncoder(text),

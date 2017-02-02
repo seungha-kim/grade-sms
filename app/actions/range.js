@@ -23,6 +23,8 @@ import {
   UPDATE_STAT
 } from '../reducers/stat';
 
+import { validatePhoneNumber } from '../utils/phoneNumber';
+
 let workbook = null;
 const debounced = {};
 const RESET_TEXT = '\n엑셀 파일을 수정한 후 프로그램을 다시 실행해 주세요.';
@@ -263,10 +265,7 @@ export function validateData() {
     let wrongPhoneExists = false;
     phoneAddresses.forEach(pa => {
       const phone = sheet[pa].v;
-      if ( // FIXME: 다른 곳으로 빼야 함
-        phone.match(/010-[0-9]{4}-[0-9]{4}/) == null
-        && phone.match(/01[16789]-[0-9]{3,4}-[0-9]{4}/) == null
-      ) {
+      if (!validatePhoneNumber(phone)) {
         if (!wrongPhoneExists) {
           messages.push('\n잘못된 전화번호 :');
           wrongPhoneExists = true;

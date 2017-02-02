@@ -13,6 +13,9 @@ import {
 import {
   closeSettingPage
 } from '../actions/subPage';
+import {
+  validatePhoneNumber
+} from '../utils/phoneNumber';
 
 const REGION = 'ap-northeast-2';
 
@@ -26,8 +29,12 @@ export function validateSetting() {
       secretAccessKey: null,
       googleApiKey: null,
       munjanaraId: null,
-      munjanaraPassword: null
+      munjanaraPassword: null,
+      senderPhoneNumber: null
     };
+    if (!validatePhoneNumber(setting.senderPhoneNumber.value)) {
+      result.senderPhoneNumber = '발신 번호의 형식이 올바르지 않습니다.';
+    }
     return Promise.all([
       new Promise(resolve => {
         // aws
@@ -94,7 +101,8 @@ export function saveSetting() {
           secretAccessKey: setting.secretAccessKey.value,
           googleApiKey: setting.googleApiKey.value,
           munjanaraId: setting.munjanaraId.value,
-          munjanaraPassword: setting.munjanaraPassword.value
+          munjanaraPassword: setting.munjanaraPassword.value,
+          senderPhoneNumber: setting.senderPhoneNumber.value
         });
         fs.writeFile(settingPath, data, err => {
           if (err) throw err;

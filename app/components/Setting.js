@@ -81,6 +81,13 @@ export default class Setting extends Component {
           errorText={setting.munjanaraPassword.errorText}
           onChange={e => updateField('munjanaraPassword', e.target.value)}
         />
+        <TextField
+          disabled={setting.loading}
+          floatingLabelText="문자나라에 사전 등록된 발신 번호"
+          value={setting.senderPhoneNumber.value || ''}
+          errorText={setting.senderPhoneNumber.errorText}
+          onChange={e => updateField('senderPhoneNumber', e.target.value)}
+        />
       </div>
     </Dialog>);
   }
