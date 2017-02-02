@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import Dialog from 'material-ui/Dialog';
 import LinearProgress from 'material-ui/LinearProgress';
 import FlatButton from 'material-ui/FlatButton';
-import { shell } from 'electron';
 
 type Props = {
   open: boolean,
@@ -43,13 +42,13 @@ export default class Send extends Component {
       <FlatButton
         label="멈추기"
         secondary
-        onTouchTap={() => {}}
+        onTouchTap={() => {}} // TODO
       />,
       <FlatButton
         label="완료"
         primary
         disabled={!done}
-        onTouchTap={() => {}}
+        onTouchTap={() => {}} // TODO
       />
     ];
     return (<Dialog
@@ -60,13 +59,7 @@ export default class Send extends Component {
     >
       <div>23 / 1000 예상시간: (1111 * n / 60) 분</div>
       <LinearProgress mode="determinate" value={23} />
-      <div style={logBoxStyle} ref={el => { this.logBox = el; }}>
-        <div>010-6330-3082 김승하(12345) <a style={{ textDecoration: 'underline' }} onClick={() => { shell.openExternal('https://goo.gl/oEx6gx'); }}>goo.gl/oEx6gx</a> 발송 완료</div>
-        <div>010-6330-3082 김승하(12345) <a onClick={() => { shell.openExternal('https://goo.gl/oEx6gx'); }}>goo.gl/oEx6gx</a> 발송 완료</div>
-        <div>010-6330-3082 김승하(12345) <a onClick={() => { shell.openExternal('https://goo.gl/oEx6gx'); }}>goo.gl/oEx6gx</a> 발송 완료</div>
-        <div>010-6330-3082 김승하(12345) <a onClick={() => { shell.openExternal('https://goo.gl/oEx6gx'); }}>goo.gl/oEx6gx</a> 발송 완료</div>
-        <div>010-6330-3082 김승하(12345) 에러 : 업로드 실패</div>
-      </div>
+      <div style={logBoxStyle} ref={el => { this.logBox = el; }} />
     </Dialog>);
   }
 }

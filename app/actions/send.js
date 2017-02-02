@@ -3,7 +3,7 @@ import path from 'path';
 import fs from 'fs';
 import handlebars from 'handlebars';
 import { TextEncoder } from 'text-encoding';
-
+import format from 'date-fns/format';
 import S3 from 'aws-sdk/clients/s3';
 import addYears from 'date-fns/add_years';
 import axios from 'axios';
@@ -270,16 +270,17 @@ export function sendReports() {
       }))
       .then(({ shortUrl, remain }) => {
         // 성공
-        const logMessage = `성공:${id}:${name}:${phone}:${shortUrl}:잔액:${remain}`;
+        const dt = format(new Date(), 'YYYYMMDDHHmmss');
+        const logMessage = `성공:${dt}:${id}:${name}:${phone}:${shortUrl}:잔액:${remain}`;
         // 파일1 기록
         fs.appendFile(
           path.join(sourceDir, LOG_FILE_NAME),
-          logMessage
+          `${logMessage}\n`
         );
         // 파일2 기록
         fs.appendFile(
           path.join(sourceDir, RESULT_RECORD_FILE_NAME),
-          `${JSON.stringify([id, 'success'])}\n`
+          `${JSON.stringify([dt, id, 'success'])}\n`
         );
         // UI 업데이트
         dispatch(updateSendLog(id, logMessage));
@@ -287,17 +288,18 @@ export function sendReports() {
       })
       .catch(err => {
         // 실패
-        const logMessage = `실패:${id}:${name}:${phone}:${err.toString()}`;
+        const dt = format(new Date(), 'YYYYMMDDHHmmss');
+        const logMessage = `실패:${dt}:${id}:${name}:${phone}:${err.toString()}`;
 
         // 파일1 기록
         fs.appendFile(
           path.join(sourceDir, LOG_FILE_NAME),
-          logMessage
+          `${logMessage}\n`
         );
         // 파일2 기록
         fs.appendFile(
           path.join(sourceDir, RESULT_RECORD_FILE_NAME),
-          `${JSON.stringify([id, 'fail', err.name])}\n`
+          `${JSON.stringify([dt, id, 'fail', err.name])}\n`
         );
         // UI 업데이트
         dispatch(updateSendLog(id, logMessage));
@@ -310,6 +312,7 @@ export function sendReports() {
       if (i >= plan.items.length) {
         clearInterval(task);
         // TODO: 스팸필터에 대한 설명
+        // 로그 파일 설명
         dispatch({ type: DONE });
       } else {
         process(plan.items[i]);
