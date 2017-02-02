@@ -67,7 +67,7 @@ function checkSmsError(result) {
     return true;
   } else if (result === '4') {
     throw new SmsError('문자나라 잔액이 충분하지 않습니다.');
-  } else if (result === '6') {
+  } else if (result === '6' || result === '12') {
     throw new SmsError('발신 번호가 잘못되었습니다.');
   } else if (result === '13') {
     throw new SmsError('보내는 번호가 사전 등록되지 않았습니다. 문자나라 홈페이지에서 발신번호 사전 등록이 필요합니다.');
@@ -311,8 +311,8 @@ export function sendReports() {
     const task = setInterval(() => {
       if (i >= plan.items.length) {
         clearInterval(task);
-        // TODO: 스팸필터에 대한 설명
-        // 로그 파일 설명
+        dispatch(updateSendLog('-1', `발송이 완료되었습니다. 폴더에 발송 결과 파일(${LOG_FILE_NAME})이 생성되었습니다.`));
+        dispatch(updateSendLog('-2', '발송 시에 오류가 없었다고 하더라도, 통신사 자체 *스팸 필터*에 의해 메시지가 학부모 휴대폰에 도착하지 않을 가능성이 있습니다. 그런 경우에는 발송 결과 파일을 참고해서 성적표 URL을 학생에게 직접 가르쳐 주거나, 성적표를 직접 인쇄해서 배부할 수 있습니다. 또한 알 수 없는 오류에 생겼을 때 개발자에게 발송 결과 파일을 보내어 문제를 해결할 수도 있습니다.'));
         dispatch({ type: DONE });
       } else {
         process(plan.items[i]);
