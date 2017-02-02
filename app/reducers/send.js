@@ -2,6 +2,7 @@
 
 import { Record } from 'immutable';
 
+export const INITIALIZE_SEND_STATE = 'INITIALIZE_SEND_STATE';
 export const UPDATE_SOURCE_DIR = 'UPDATE_SOURCE_DIR';
 export const UPDATE_SOURCE_DIR_ERROR_TEXT = 'UPDATE_SOURCE_DIR_ERROR_TEXT';
 export const UPDATE_TEMPLATE_STRING = 'UPDATE_TEMPLATE_STRING';
@@ -9,6 +10,8 @@ export const UPDATE_SEND_LOG = 'UPDATE_SEND_LOG';
 export const DONE = 'DONE';
 export const UPDATE_TEST_PHONE_NUMBER = 'UPDATE_TEST_PHONE_NUMBER';
 export const DISABLE_SEND_BUTTON = 'DISABLE_SEND_BUTTON';
+export const COMPLETE_INDIVIDUAL_SEND = 'COMPLETE_INDIVIDUAL_SEND';
+export const UPDATE_TOTAL_COUNT = 'UPDATE_TOTAL_COUNT';
 
 type LogType = {
   id: string,
@@ -25,7 +28,9 @@ export class State extends Record({
   log: null, // 로그 한 건,
   done: false,
   testPhoneNumber: '',
-  cannotSend: false
+  cannotSend: false,
+  sendCount: 0,
+  totalCount: null
 }) {
   sourceDir: ?string;
   sourceDirErrorText: ?string;
@@ -37,6 +42,8 @@ export class State extends Record({
   done: boolean;
   testPhoneNumber: string;
   cannotSend: boolean;
+  sendCount: number;
+  totalCount: ?number;
 }
 
 const initialState = new State();
@@ -62,6 +69,12 @@ export default function send(state: State = initialState, action: any) {
       return state.set('testPhoneNumber', payload);
     case DISABLE_SEND_BUTTON:
       return state.set('cannotSend', true);
+    case COMPLETE_INDIVIDUAL_SEND:
+      return state.update('sendCount', c => c + 1);
+    case UPDATE_TOTAL_COUNT:
+      return state.set('totalCount', payload);
+    case INITIALIZE_SEND_STATE:
+      return initialState;
     default:
       return state;
   }

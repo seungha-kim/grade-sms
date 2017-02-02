@@ -12,7 +12,8 @@ import {
   openSettingPage,
   openSelectSourceDirPage,
   closeMessageTemplate,
-  openSendPage
+  openSendPage,
+  closeSendPage
 } from './subPage';
 
 import {
@@ -22,7 +23,10 @@ import {
   UPDATE_SEND_LOG,
   DONE,
   UPDATE_TEST_PHONE_NUMBER,
-  DISABLE_SEND_BUTTON
+  DISABLE_SEND_BUTTON,
+  COMPLETE_INDIVIDUAL_SEND,
+  UPDATE_TOTAL_COUNT,
+  INITIALIZE_SEND_STATE
 } from '../reducers/send';
 
 import {
@@ -33,6 +37,7 @@ import {
 } from '../utils/fileNames';
 
 const encoder = new TextEncoder('euc-kr', { NONSTANDARD_allowLegacyEncoding: true });
+let currentTimeout;
 
 function munjanaraEncoder(input) {
   return Buffer.from(encoder.encode(input))
@@ -80,11 +85,18 @@ export function onCommandOpenSelectSourceDirPage() { // T.T
   return (dispatch, getState) => {
     const { setting } = getState();
     if (setting.valid()) {
+      dispatch(initializeSendState());
       dispatch(openSelectSourceDirPage());
     } else {
       alert('외부 서비스 설정이 제대로 되지 않았습니다. 설정을 한 뒤 [메뉴 - 성적표 발송]을 실행해주세요.');
       dispatch(openSettingPage());
     }
+  };
+}
+
+export function initializeSendState() {
+  return {
+    type: INITIALIZE_SEND_STATE
   };
 }
 
@@ -208,16 +220,19 @@ export function sendMessage(receiver, text, callback) {
 // FIXME: 실패건 다시 보낼 수 있도록 수정 (템플릿 저장하는 등 분리)
 export function sendReports() {
   return (dispatch, getState) => {
-    const really = confirm('총 n 명에게 메시지가 발송됩니다. 정말 발송하시겠습니까?');
-    if (!really) return;
     const { send, setting } = getState();
     const sourceDir = send.sourceDir;
-    const messageTemplateFilePath = path.join(sourceDir, MESSAGE_TEMPLATE_FILE_NAME);
-    fs.writeFileSync(messageTemplateFilePath, send.messageTemplateString);
-
     const planPath = path.join(sourceDir, PLAN_FILE_NAME);
     // 발송 계획 파일 구조 : `app/actions/generate.js` 참고
     const plan = JSON.parse(fs.readFileSync(planPath, { encoding: 'utf-8' }));
+    const totalCount = plan.items.length;
+    const really = confirm(`총 ${totalCount} 명에게 메시지가 발송됩니다. 정말 발송하시겠습니까?`);
+    if (!really) return;
+    dispatch(updateTotalCount(totalCount));
+
+    const messageTemplateFilePath = path.join(sourceDir, MESSAGE_TEMPLATE_FILE_NAME);
+    fs.writeFileSync(messageTemplateFilePath, send.messageTemplateString);
+
     const googleKey = setting.googleApiKey.value;
     const bucket = setting.s3Bucket.value;
     const region = 'ap-northeast-2';
@@ -284,6 +299,7 @@ export function sendReports() {
         );
         // UI 업데이트
         dispatch(updateSendLog(id, logMessage));
+        dispatch(completeIndividualSend());
         return id;
       })
       .catch(err => {
@@ -303,19 +319,22 @@ export function sendReports() {
         );
         // UI 업데이트
         dispatch(updateSendLog(id, logMessage));
+        dispatch(completeIndividualSend());
         throw err; // TODO: 괜찮은가?
       });
     }
 
     let i = 0;
-    const task = setInterval(() => {
+    currentTimeout = setInterval(() => {
       if (i >= plan.items.length) {
-        clearInterval(task);
-        dispatch(updateSendLog('-1', `발송이 완료되었습니다. 폴더에 발송 결과 파일(${LOG_FILE_NAME})이 생성되었습니다.`));
-        dispatch(updateSendLog('-2', '발송 시에 오류가 없었다고 하더라도, 통신사 자체 *스팸 필터*에 의해 메시지가 학부모 휴대폰에 도착하지 않을 가능성이 있습니다. 그런 경우에는 발송 결과 파일을 참고해서 성적표 URL을 학생에게 직접 가르쳐 주거나, 성적표를 직접 인쇄해서 배부할 수 있습니다. 또한 알 수 없는 오류에 생겼을 때 개발자에게 발송 결과 파일을 보내어 문제를 해결할 수도 있습니다.'));
-        dispatch({ type: DONE });
+        clearInterval(currentTimeout);
+        setTimeout(() => {
+          dispatch(updateSendLog('-1', `\n발송이 완료되었습니다. 폴더에 발송 결과 파일(${LOG_FILE_NAME})이 생성되었습니다.`));
+          dispatch(updateSendLog('-2', '발송 시에 오류가 없었다고 하더라도, 통신사 자체 *스팸 필터*에 의해 메시지가 학부모 휴대폰에 도착하지 않을 가능성이 있습니다. 그런 경우에는 발송 결과 파일을 참고해서 성적표 URL을 학생에게 직접 가르쳐 주거나, 성적표를 직접 인쇄해서 배부할 수 있습니다. 또한 알 수 없는 오류에 생겼을 때 개발자에게 발송 결과 파일을 보내어 문제를 해결할 수도 있습니다.'));
+          dispatch({ type: DONE });
+        }, 3000);
       } else {
-        process(plan.items[i]);
+        process(plan.items[i]); // FIXME: 성공한 발송기록이 있을 경우는 빨리감기
         i += 1;
       }
     }, 1111);
@@ -345,7 +364,7 @@ export function smsTestAndSend() {
       if (err) {
         alert(`테스트 문자를 발송하는 도중에 에러가 발생했습니다: ${err.toString()}`);
       } else {
-        const goAhead = confirm(`"${testString}"과 같은 문자를 받으셨다면 확인 버튼을 눌러 성적표를 발송하세요. 글자가 이상하게 보이는 등의 문제가 생기면 개발자에게 연락하세요.`);
+        const goAhead = confirm(`"${testString}"와 같은 테스트 문자를 받으셨다면 확인 버튼을 눌러 성적표를 발송하세요. 글자가 이상하게 보이는 등의 문제가 생기면 개발자에게 연락하세요.`);
         if (goAhead) {
           dispatch(closeMessageTemplate());
           dispatch(openSendPage());
@@ -353,5 +372,25 @@ export function smsTestAndSend() {
         }
       }
     }));
+  };
+}
+
+export function completeIndividualSend() {
+  return {
+    type: COMPLETE_INDIVIDUAL_SEND
+  };
+}
+
+export function updateTotalCount(payload) {
+  return {
+    type: UPDATE_TOTAL_COUNT,
+    payload
+  };
+}
+export function cancelSendingReports() {
+  return (dispatch) => {
+    clearInterval(currentTimeout);
+    alert('발송이 취소되었습니다. 발송을 재개하려면 [메뉴 - 성적표 발송]를 선택한 후 같은 폴더를 선택하면 됩니다.');
+    dispatch(closeSendPage());
   };
 }

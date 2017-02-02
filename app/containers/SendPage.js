@@ -3,19 +3,22 @@ import { connect } from 'react-redux';
 
 import Send from '../components/Send';
 import { closeSendPage } from '../actions/subPage';
+import { cancelSendingReports } from '../actions/send';
 
 function mapStateToProps({ subPage, send }) {
   return {
-    // open: subPage.send
     open: subPage.send,
     done: send.done,
-    log: send.log
+    log: send.log,
+    count: send.sendCount,
+    total: send.totalCount
   };
 }
 
 function mapDispatchToProps(dispatch) {
   return bindActionCreators({
-    close: closeSendPage
+    close: closeSendPage,
+    cancel: cancelSendingReports
   }, dispatch);
 }
 
