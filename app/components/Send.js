@@ -8,7 +8,8 @@ type Props = {
   close: () => void,
   send: () => void,
   log: ?{id: string, text: string},
-  done: boolean
+  done: boolean,
+  total: ?number
 };
 
 const logBoxStyle = {
@@ -20,12 +21,17 @@ const logBoxStyle = {
 };
 
 export default class Send extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { count: 0 };
+  }
   componentWillReceiveProps({ log }) {
     if (log != null && this.logBox != null) {
       if (
         this.props.log == null
         || log.id !== this.props.log.id
       ) {
+        this.setState(({ count }) => ({ count: count + 1 }));
         const logEl = document.createElement('div');
         logEl.textContent = log.text;
         this.logBox.appendChild(logEl);
@@ -37,7 +43,7 @@ export default class Send extends Component {
   props: Props;
 
   render() {
-    const { open, done } = this.props;
+    const { open, done, total } = this.props;
     const actions = [
       <FlatButton
         label="멈추기"
@@ -51,14 +57,16 @@ export default class Send extends Component {
         onTouchTap={() => {}} // TODO
       />
     ];
+    const remain = (total == null) ? '-' : `${(1111 * (total - this.state.count) * 0.016).toFixed(0)}분`;
     return (<Dialog
       title="성적표 발송"
       open={open}
       modal
       actions={actions}
     >
-      <div>23 / 1000 예상시간: (1111 * n / 60) 분</div>
-      <LinearProgress mode="determinate" value={23} />
+      <div>{this.state.count} / {total}</div>
+      <div>남은 예상시간: {remain}</div>
+      <LinearProgress mode="determinate" value={this.state.count} max={total} />
       <div style={logBoxStyle} ref={el => { this.logBox = el; }} />
     </Dialog>);
   }
