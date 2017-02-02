@@ -2,8 +2,14 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 
 import MessageTemplate from '../components/MessageTemplate';
-import { renderExampleMessage } from '../actions/send';
-import { closeMessageTemplate } from '../actions/subPage';
+import {
+  renderExampleMessage,
+  updateTestPhoneNumber,
+  smsTestAndSend
+} from '../actions/send';
+import {
+  closeMessageTemplate
+} from '../actions/subPage';
 
 function mapStateToProps({ subPage, send }) {
   return {
@@ -11,15 +17,18 @@ function mapStateToProps({ subPage, send }) {
     isError: send.messageTemplateError,
     templateString: send.messageTemplateString,
     renderedExampleMessage: send.renderedExampleMessage,
-    exampleBytes: send.exampleBytes
+    exampleBytes: send.exampleBytes,
+    testPhoneNumber: send.testPhoneNumber,
+    cannotSend: send.cannotSend
   };
 }
 
 function mapDispatchToProps(dispatch) {
   return bindActionCreators({
     close: closeMessageTemplate,
-    next: () => {},
-    renderExampleMessage
+    send: smsTestAndSend,
+    renderExampleMessage,
+    updateTestPhoneNumber
   }, dispatch);
 }
 

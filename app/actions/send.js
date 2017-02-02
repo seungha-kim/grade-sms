@@ -10,7 +10,9 @@ import axios from 'axios';
 
 import {
   openSettingPage,
-  openSelectSourceDirPage
+  openSelectSourceDirPage,
+  closeMessageTemplate,
+  openSendPage
 } from './subPage';
 
 import {
@@ -18,7 +20,9 @@ import {
   UPDATE_SOURCE_DIR_ERROR_TEXT,
   UPDATE_TEMPLATE_STRING,
   UPDATE_SEND_LOG,
-  DONE
+  DONE,
+  UPDATE_TEST_PHONE_NUMBER,
+  DISABLE_SEND_BUTTON
 } from '../reducers/send';
 
 import {
@@ -170,8 +174,39 @@ export function updateSendLog(id, text) {
   };
 }
 
+export function sendMessage(receiver, text, callback) {
+  return (dispatch, getState) => {
+    const { setting } = getState();
+    const smsId = setting.munjanaraId.value;
+    const smsPasswd = setting.munjanaraPassword.value;
+    const sender = '010-6330-3082'.replace(/[^0-9]/g, ''); // FIXME
+    axios
+      .get('https://www.munjanara.co.kr/MSG/send/web_admin_send.htm', {
+        params: {
+          userid: smsId,
+          passwd: smsPasswd,
+          sender,
+          receiver: receiver.replace(/[^0-9]/g, ''),
+          encode: 1,
+          message: munjanaraEncoder(text),
+          allow_mms: 1
+        }
+      })
+      .then(res => {
+        // 결과값|유료잔액|전송수|예약유무|전달값
+        const [result, remain] = res.data.split('|');
+        checkSmsError(result);
+        callback(null, remain);
+        return remain;
+      })
+      .catch(err => {
+        callback(err);
+      });
+  };
+}
+
 // FIXME: 실패건 다시 보낼 수 있도록 수정 (템플릿 저장하는 등 분리)
-export function sendMessages() {
+export function sendReports() {
   return (dispatch, getState) => {
     const really = confirm('총 n 명에게 메시지가 발송됩니다. 정말 발송하시겠습니까?');
     if (!really) return;
@@ -189,8 +224,6 @@ export function sendMessages() {
     const host = `https://s3.${region}.amazonaws.com`;
     const accessKeyId = setting.accessKeyId.value;
     const secretAccessKey = setting.secretAccessKey.value;
-    const smsId = setting.munjanaraId.value;
-    const smsPasswd = setting.munjanaraPassword.value;
     const s3 = new S3({
       accessKeyId,
       secretAccessKey,
@@ -228,26 +261,13 @@ export function sendMessages() {
           throw new UrlError(err.toString());
         }))
       // 문자 전송 https://www.munjanara.co.kr/_support/web_admin_guide.htm
-      .then(shortUrl => axios
-        .get('https://www.munjanara.co.kr/MSG/send/web_admin_send.htm', {
-          params: {
-            userid: smsId,
-            passwd: smsPasswd,
-            sender: '01063303082', // TODO: setting 필드 추가
-            receiver: phone.replace(/[^0-9]/g, ''),
-            encode: 1,
-            message: munjanaraEncoder(`${renderer({ 이름: name, 원번: id, 학교: school })}\n${shortUrl}`),
-            allow_mms: 1
-          }
-        })
-        .then(res => {
-          // 결과값|유료잔액|전송수|예약유무|전달값
-          const [result, remain] = res.data.split('|');
-          checkSmsError(result);
-          return { shortUrl, remain };
-        }, err => {
-          throw new SmsError(err.toString());
-        }))
+      .then(shortUrl => new Promise((resolve, reject) => {
+        const text = `${renderer({ 이름: name, 원번: id, 학교: school })}\n${shortUrl}`;
+        dispatch(sendMessage(phone, text, (err, remain) => {
+          if (err) reject(err);
+          else resolve({ shortUrl, remain });
+        }));
+      }))
       .then(({ shortUrl, remain }) => {
         // 성공
         const logMessage = `성공:${id}:${name}:${phone}:${shortUrl}:잔액:${remain}`;
@@ -289,11 +309,46 @@ export function sendMessages() {
     const task = setInterval(() => {
       if (i >= plan.items.length) {
         clearInterval(task);
+        // TODO: 스팸필터에 대한 설명
         dispatch({ type: DONE });
       } else {
         process(plan.items[i]);
         i += 1;
       }
     }, 1111);
+  };
+}
+
+export function updateTestPhoneNumber(payload) {
+  return {
+    type: UPDATE_TEST_PHONE_NUMBER,
+    payload
+  };
+}
+
+export function disableSendButton() {
+  return {
+    type: DISABLE_SEND_BUTTON
+  };
+}
+
+export function smsTestAndSend() {
+  const testString = '한글, English, 1234';
+  return (dispatch, getState) => {
+    const { send } = getState();
+    const receiver = send.testPhoneNumber;
+    dispatch(disableSendButton());
+    dispatch(sendMessage(receiver, testString, err => {
+      if (err) {
+        alert(`테스트 문자를 발송하는 도중에 에러가 발생했습니다: ${err.toString()}`);
+      } else {
+        const goAhead = confirm(`"${testString}"과 같은 문자를 받으셨다면 확인 버튼을 눌러 성적표를 발송하세요. 글자가 이상하게 보이는 등의 문제가 생기면 개발자에게 연락하세요.`);
+        if (goAhead) {
+          dispatch(closeMessageTemplate());
+          dispatch(openSendPage());
+          dispatch(sendReports());
+        }
+      }
+    }));
   };
 }

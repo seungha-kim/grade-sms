@@ -3,6 +3,7 @@ import Dialog from 'material-ui/Dialog';
 import FlatButton from 'material-ui/FlatButton';
 import TextField from 'material-ui/TextField';
 import HelpText from './HelpText';
+import Divider from 'material-ui/Divider';
 
 type Props = {
   open: boolean,
@@ -12,7 +13,10 @@ type Props = {
   templateString: string,
   renderedExampleMessage: string,
   renderExampleMessage: (string) => void,
-  exampleBytes: number
+  exampleBytes: number,
+  testPhoneNumber: string,
+  updateTestPhoneNumber: (string) => void,
+  cannotSend: boolean
 };
 
 export default class MessageTemplate extends Component {
@@ -26,7 +30,10 @@ export default class MessageTemplate extends Component {
       renderExampleMessage,
       renderedExampleMessage,
       isError,
-      exampleBytes
+      exampleBytes,
+      testPhoneNumber,
+      updateTestPhoneNumber,
+      cannotSend
     } = this.props;
     const actions = [
       <FlatButton
@@ -38,7 +45,7 @@ export default class MessageTemplate extends Component {
         label="발송"
         primary
         onTouchTap={send}
-        disabled={templateString === '' || isError}
+        disabled={cannotSend || templateString === '' || isError || testPhoneNumber === ''}
       />
     ];
     return (<Dialog
@@ -46,14 +53,17 @@ export default class MessageTemplate extends Component {
       open={open}
       modal
       actions={actions}
+      autoScrollBodyContent
+      bodyStyle={{ paddingTop: '30px' }}
     >
       <div style={{ display: 'flex', alignItems: 'stretch' }}>
         <div style={{ flexGrow: 1, marginRight: '30px' }}>
           <HelpText>
             학부모에게 전송될 메시지 내용을 작성합니다. <br />
             아래의 변수를 지원합니다. <br />
-            <code>{'{{'}이름{'}}'}</code> : 학생 이름 <br />
-            <code>{'{{'}원번{'}}'}</code> : 학생 원번 <br />
+            <code>{'{{'}이름{'}}'}</code><br />
+            <code>{'{{'}원번{'}}'}</code><br />
+            <code>{'{{'}학교{'}}'}</code><br />
           </HelpText>
           <TextField
             floatingLabelText="메시지 내용"
@@ -70,7 +80,19 @@ export default class MessageTemplate extends Component {
           <div style={{ marginTop: '10px', textAlign: 'right' }}>{exampleBytes} Bytes { exampleBytes <= 90 ? '단문 (건당 30원)' : '장문 (건당 50원)'}</div>
         </div>
       </div>
-
+      <div style={{ marginTop: '50px' }}>
+        <HelpText>
+          문자나라 서비스가 제대로 동작하는지 확인하기 위해 테스트 문자를 1회 보내야 합니다. <br />
+          테스트 문자를 받을 전화번호를 입력하세요.
+        </HelpText>
+        <TextField
+          floatingLabelText="전화번호"
+          floatingLabelFixed
+          hintText="010-1234-5678"
+          value={testPhoneNumber}
+          onChange={e => updateTestPhoneNumber(e.target.value)}
+        />
+      </div>
     </Dialog>);
   }
 }
