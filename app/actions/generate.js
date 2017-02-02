@@ -50,7 +50,7 @@ export function generateReports() {
               const fileName = `${ind.id}_${hashString}.html`;
               fs.writeFile(path.join(destDir, fileName), rendered, { encoding: 'utf-8' }, errr => {
                 if (errr) throw errr;
-                plan.items.push([ind.id, ind.phone, fileName]);
+                plan.items.push([ind.id, ind.name, ind.school, ind.phone, fileName]);
                 dispatch({ type: PROGRESS_GENERATING });
                 resolve();
               });

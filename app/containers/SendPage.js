@@ -4,9 +4,12 @@ import { connect } from 'react-redux';
 import Send from '../components/Send';
 import { closeSendPage } from '../actions/subPage';
 
-function mapStateToProps({ subPage }) {
+function mapStateToProps({ subPage, send }) {
   return {
-    open: subPage.send
+    // open: subPage.send
+    open: subPage.send,
+    done: send.done,
+    log: send.log
   };
 }
 
