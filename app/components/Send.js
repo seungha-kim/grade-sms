@@ -45,6 +45,7 @@ export default class Send extends Component {
         label="멈추기"
         secondary
         onTouchTap={cancel}
+        disabled={done}
       />,
       <FlatButton
         label="완료"

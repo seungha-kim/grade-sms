@@ -11,14 +11,14 @@ import {
 } from '../utils/fileNames';
 
 type Props = {
-  destDir: string
-  // send: () => void
+  destDir: string,
+  send: () => void
 };
 
 export default class GenerateDone extends Component {
   props: Props;
   render() {
-    const { destDir } = this.props;
+    const { destDir, send } = this.props;
     return (<div className={s.wrap}>
       <HelpText className={s.content}>
         <code style={{ cursor: 'pointer', textDecoration: 'underline' }} onClick={() => shell.openItem(destDir)}>{destDir}</code> 폴더에 발송 계획 파일({PLAN_FILE_NAME}) 및 성적표를 생성했습니다. <br />
@@ -27,7 +27,7 @@ export default class GenerateDone extends Component {
         성적표 파일 이름은 <code>&lt;원번&gt;_&lt;난수&gt;.html</code>과 같은 형식을 따릅니다. <br />
       </HelpText>
       <div className={cs.buttonWrap}>
-        <RaisedButton label="발송" primary onClick={() => alert('제작중')} />
+        <RaisedButton label="발송" primary onClick={() => send(destDir)} />
         <RaisedButton label="닫기" secondary onClick={() => remote.getCurrentWindow().close()} />
       </div>
     </div>);

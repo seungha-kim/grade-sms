@@ -2,6 +2,9 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 
 import GenerateDone from '../components/GenerateDone';
+import {
+  onCommandOpenSelectSourceDirPage
+} from '../actions/send';
 
 function mapStateToProps({ generate }) {
   return {
@@ -11,8 +14,7 @@ function mapStateToProps({ generate }) {
 
 function mapDispatchToProps(dispatch) {
   return bindActionCreators({
-    send: () => () => {},
-    close: () => () => {}
+    send: onCommandOpenSelectSourceDirPage
   }, dispatch);
 }
 

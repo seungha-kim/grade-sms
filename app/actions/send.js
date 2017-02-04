@@ -81,11 +81,14 @@ function checkSmsError(result) {
   }
 }
 
-export function onCommandOpenSelectSourceDirPage() { // T.T
+export function onCommandOpenSelectSourceDirPage(sourceDir) { // T.T
   return (dispatch, getState) => {
     const { setting } = getState();
     if (setting.valid()) {
       dispatch(initializeSendState());
+      if (sourceDir != null) {
+        dispatch(updateSourceDir(sourceDir));
+      }
       dispatch(openSelectSourceDirPage());
     } else {
       alert('외부 서비스 설정이 제대로 되지 않았습니다. 설정을 한 뒤 [메뉴 - 성적표 발송]을 실행해주세요.');

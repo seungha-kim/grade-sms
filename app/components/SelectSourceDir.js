@@ -40,7 +40,8 @@ export default class SelectSourceDir extends Component {
     >
       <HelpText>
         이전 단계에서 생성된 성적표가 들어있는 폴더를 선택해 주세요. <br />
-        (성적표 생성 시 경로를 변경하지 않았다면 <code>{defaultDestBaseDir()}</code> 안에 있습니다.)
+        (성적표 생성 시 경로를 변경하지 않았다면 <code>{defaultDestBaseDir()}</code> 안에 있습니다.) <br />
+        이미 입력칸이 채워져있으면 다음 버튼을 누르시면 됩니다.
       </HelpText>
       <TextField
         floatingLabelText="성적표 폴더"
