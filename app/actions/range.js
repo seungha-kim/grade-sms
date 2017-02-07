@@ -3,6 +3,7 @@ import { remote } from 'electron';
 import debounce from 'lodash.debounce';
 import _ from 'lodash';
 
+import { calculateRank } from '../utils/rank';
 import {
   SELECT_FILE,
   UPDATE_RANGE,
@@ -376,6 +377,39 @@ export function calculateStat() {
       if (homeworkClasses != null) homeworkClasses.forEach(cls => acc.add(cls));
       return acc;
     }, new Set()));
+    const totalTestRanksAll = _.chain(individual)
+      .map(({ testGrades }) => testGrades)
+      .thru(gs => _.zip(...gs))
+      .map((testGradeArray) => {
+        const objs = testGradeArray.map(grade => ({ grade }));
+        calculateRank(objs, ({ grade }) => grade, (item, rank) => { item.rank = rank; }); // eslint-disable-line
+        return objs.map(({ rank }) => rank);
+      })
+      .thru(gs => _.zip(...gs))
+      .value();
+    _.zip(individual, totalTestRanksAll).forEach(([ind, totalTestRanks]) => { ind.totalTestRanks = totalTestRanks; }); // eslint-disable-line
+    const classTestRanksAll = _.chain(individual)
+      .map(({ id, testGrades, testClasses }) =>
+        _.zip(testGrades, testClasses)
+          .map(([grade, cls]) => ({ grade, cls, id }))
+      )
+      .thru(gs => _.zip(...gs))
+      .map(testGradeArray => {
+        const classRankMap = {}; // id : classRank
+        _.chain(testGradeArray)
+          .groupBy('cls')
+          .forOwn((classTestGradeArray) => {
+            calculateRank(
+              classTestGradeArray,
+              ({ grade }) => grade,
+              ({ id }, rank) => { classRankMap[id] = rank; }
+            );
+          })
+          .value();
+        return classRankMap;
+      })
+      .value();
+    individual.forEach(ind => { ind.classTestRanks = classTestRanksAll.map(ctr => ctr[ind.id]); }); // eslint-disable-line
     const tests = formData.get('testRangeSets').toJS().map((trs, i) => {
       // 테스트 각각의 반평균 반석차 전체평균 전체석차
       const intermediate = individual

@@ -29,7 +29,17 @@ const chartColors = [
 
 export function render(stat, templateForm, exactIndex = null) {
   const index = exactIndex || templateForm.currentIndex;
-  const { id, name, school, testGrades, testClasses, homeworkGrades, homeworkClasses } = stat.individual[index];
+  const {
+    id,
+    name,
+    school,
+    testGrades,
+    testClasses,
+    totalTestRanks,
+    classTestRanks,
+    homeworkGrades,
+    homeworkClasses
+  } = stat.individual[index];
   const { tests: testsStat, homeworks: homeworksStat } = stat;
   const { tests: testsForm, homeworks: homeworksForm } = templateForm;
   const testsData = testsStat.map(({
@@ -48,11 +58,11 @@ export function render(stat, templateForm, exactIndex = null) {
     const classAvgDisp = noClass ? '-' : classAvgAllObj[className].toFixed(2);
     const classAvgAll = [['전체', totalAvg]].concat(Object.entries(classAvgAllObj));
     const classRank = [
-      noGrade || noClass ? '-' : classRankAllObj[className].indexOf(id) + 1,
+      classTestRanks[testIndex],
       noClass ? '-' : classRankAllObj[className].length
     ];
     const totalRank = [
-      noGrade || noClass ? '-' : totalRankArr.indexOf(id) + 1,
+      totalTestRanks[testIndex],
       totalRankArr.length
     ];
     return {
