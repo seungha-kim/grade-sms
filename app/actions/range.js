@@ -26,6 +26,7 @@ import {
 import { validatePhoneNumber } from '../utils/phoneNumber';
 
 let workbook = null;
+let blankRowIndexes;
 const debounced = {};
 const RESET_TEXT = '\n엑셀 파일을 수정한 후 프로그램을 다시 실행해 주세요.';
 
@@ -79,11 +80,9 @@ function queryDataRange(rangeString: ?string, sheet) {
   if (range.length !== 2 || range[0] === '' || range[1] === '') return;
   const left = sheet[range[0]];
   const right = sheet[range[1]];
-  if (left == null || right == null) return;
-  const leftValue = left.v;
-  const rightValue = right.v;
-  if (leftValue == null || rightValue == null) return;
-  return [JSON.stringify(leftValue), JSON.stringify(rightValue)];
+  const leftValue = left ? JSON.stringify(left.v) : '<빈칸>';
+  const rightValue = right ? JSON.stringify(right.v) : '<빈칸>';
+  return [leftValue, rightValue];
 }
 
 function updateRange(fieldKey, range) {
@@ -160,6 +159,7 @@ export function revalidate() {
   };
 }
 
+
 export function validateData() {
   return (dispatch, getState) => {
     const messages = [];
@@ -169,7 +169,6 @@ export function validateData() {
     const sheetName = workbook.SheetNames[selectedSheetIndex];
     if (sheetName == null) return;
     const sheet = workbook.Sheets[sheetName];
-
     // 개수 맞는지 - 모든 range 가져와서 decode 후 개수 검사
     const ranges = [];
     traverseAllFields(formData, f => ranges.push(f.get('range')));
@@ -184,18 +183,21 @@ export function validateData() {
 
     // 셀 중 빈칸이 있는지
     const blankCells = [];
+    blankRowIndexes = new Set();
     allRangesDecoded.forEach(range => {
       for (let col = range.s.c; col <= range.e.c; col += 1) {
-        for (let row = range.s.r; row < range.e.r; row += 1) {
+        for (let row = range.s.r, i = 0; row < range.e.r; row += 1, i += 1) {
           const cellName = xlsx.utils.encode_cell({ c: col, r: row });
-          if (sheet[cellName] == null) blankCells.push(cellName);
+          if (sheet[cellName] == null) {
+            blankCells.push(cellName);
+            blankRowIndexes.add(i);
+          }
         }
       }
     });
     if (blankCells.length !== 0) {
-      messages.push(`범위 내에 빈 셀이 존재합니다 : ${blankCells.join(', ')}${RESET_TEXT}`);
-      dispatch(updateDataValidation(messages.join('\n'), false));
-      return;
+      messages.push(`범위 내에 빈 셀이 존재합니다 : ${blankCells.join(', ')}`);
+      messages.push('빈 셀이 존재하는 행은 모든 계산에서 제외됩니다.');
     }
 
     // 원번은 모두 자연수이고 중복된 게 없는지
@@ -322,129 +324,150 @@ export function calculateStat() {
     const sheetName = workbook.SheetNames[selectedSheetIndex];
     if (sheetName == null) return;
     const sheet = workbook.Sheets[sheetName];
-    // TODO: 출결에 따라 제외?
-    const classesMap = {};
-    // individual
     const ids = rangeMap(
       formData.get('privacyRangeSet').get('id').get('range'),
-      ad => sheet[ad].v.toString()
+      ad => (sheet[ad] ? sheet[ad].v : null)
     );
     const names = rangeMap(
       formData.get('privacyRangeSet').get('name').get('range'),
-      ad => sheet[ad].v
+      ad => (sheet[ad] ? sheet[ad].v : null)
     );
     const schools = rangeMap(
       formData.get('privacyRangeSet').get('school').get('range'),
-      ad => sheet[ad].v
+      ad => (sheet[ad] ? sheet[ad].v : null)
     );
     const phones = rangeMap(
       formData.get('privacyRangeSet').get('phone').get('range'),
-      ad => sheet[ad].v
+      ad => (sheet[ad] ? sheet[ad].v : null)
     );
+    const testClassesZipped = _.zip(...formData.get('testRangeSets').map(trs =>
+      rangeMap(
+        trs.get('fields').get('class').get('range'),
+        ad => (sheet[ad] ? sheet[ad].v : null)
+      )
+    ));
+    const testGradesZipped = _.zip(...formData.get('testRangeSets').map(trs =>
+      rangeMap(
+        trs.get('fields').get('grade').get('range'),
+        ad => (sheet[ad] ? sheet[ad].v : null)
+      )
+    ));
+    const homeworkClassesZipped = _.zip(...formData.get('homeworkRangeSets').map(trs =>
+      rangeMap(
+        trs.get('fields').get('class').get('range'),
+        ad => (sheet[ad] ? sheet[ad].v : null)
+      )
+    ));
+    const homeworkGradesZipped = _.zip(...formData.get('homeworkRangeSets').map(trs =>
+      rangeMap(
+        trs.get('fields').get('grade').get('range'),
+        ad => (sheet[ad] ? sheet[ad].v : null)
+      )
+    ));
     const individual = _.zipWith(
       ids, names, schools, phones,
-      (id, name, school, phone) => ({ id, name, school, phone }));
-    const tests = formData.get('testRangeSets').map(trs => {
-      const testClasses = rangeMap(
-        trs.get('fields').get('class').get('range'),
-        ad => sheet[ad].v
-      );
-      const testGrades = rangeMap(
-        trs.get('fields').get('grade').get('range'),
-        ad => sheet[ad].v
-      );
-      testClasses.forEach(c => {
-        classesMap[c] = true;
-      });
-      const individualGrade = _.zipObject(ids, testGrades);
-      const individualClass = _.zipObject(ids, testClasses);
-      // NOTE: 점수에 숫자가 아닌 것이 들어가는 것은 평균 및 순위 계산에서 제외
-      const statIntermediate = _.chain(ids)
-        .zip(testGrades, testClasses)
-        .map(([id, grade, cls]) => ({ id, grade: parseFloat(grade), cls }))
-        .filter(({ grade }) => !Number.isNaN(grade))
-        .values();
-
-      const totalRank = _.chain(statIntermediate)
-        .sortBy(({ grade }) => grade)
+      testClassesZipped, testGradesZipped, homeworkClassesZipped, homeworkGradesZipped,
+      (id, name, school, phone, testClasses, testGrades, homeworkClasses, homeworkGrades) => ({
+        id, name, school, phone, testClasses, testGrades, homeworkClasses, homeworkGrades
+      })
+    ).filter((v, i) => !blankRowIndexes.has(i));
+    const classes = Array.from(individual.reduce((acc, { testClasses, homeworkClasses }) => {
+      testClasses.forEach(cls => acc.add(cls));
+      if (homeworkClasses != null) homeworkClasses.forEach(cls => acc.add(cls));
+      return acc;
+    }, new Set()));
+    const tests = formData.get('testRangeSets').toJS().map((trs, i) => {
+      // 테스트 각각의 반평균 반석차 전체평균 전체석차
+      const intermediate = individual
+        .map(({ id, testClasses: tcs, testGrades: tgs }) => ({
+          id, cls: tcs[i], grade: tgs[i]
+        }))
+        .filter(({ grade }) => Number.isFinite(grade)); // NOTE: 점수가 숫자가 아닌 경우는 빼고 계산
+      const totalRank = _.chain(intermediate)
+        .sortBy(['grade'])
+        .reverse()
         .map(({ id }) => id)
         .value();
-      const totalAvg = _.chain(statIntermediate)
+      const totalAvg = _.chain(intermediate)
         .map(({ grade }) => grade)
-        .thru(arr => _.sum(arr) / arr.length)
-        .value();
-      const classRank = _.chain(statIntermediate)
+        .sum()
+        .value() / intermediate.length;
+      const classIntermediate = intermediate
         .reduce((acc, { id, cls, grade }) => {
           acc[cls] = acc[cls] || []; // eslint-disable-line
           acc[cls].push({ id, grade });
           return acc;
-        }, {})
-        .transform((result, value, cls) => {
-          result[cls] = _.chain(value) // eslint-disable-line
-            .sortBy(({ grade }) => grade)
-            .map(({ id }) => id)
-            .value();
-        }, {})
-        .value();
-      const classAvg = _.chain(statIntermediate)
-        .reduce((acc, { grade, cls }) => {
-          acc[cls] = acc[cls] || []; // eslint-disable-line
-          acc[cls].push(grade);
-          return acc;
-        }, {})
-        .transform((result, value, key) => {
-          result[key] = _.sum(value) / value.length; // eslint-disable-line
-        }, {})
-        .value();
+        }, {});
+      const classRank = _.transform(classIntermediate, (acc, arr, cls) => {
+        acc[cls] = _.chain(arr) // eslint-disable-line
+          .sortBy(({ grade }) => grade)
+          .reverse()
+          .map(({ id }) => id)
+          .value();
+        return acc;
+      }, {});
+      const classAvg = _.transform(classIntermediate, (acc, arr, cls) => {
+        acc[cls] = _.chain(arr) // eslint-disable-line
+          .map(({ grade }) => grade)
+          .sum()
+          .value() / arr.length;
+        return acc;
+      }, {});
       return {
-        individualGrade,
-        individualClass,
+        totalRank,
+        totalAvg,
+        classRank,
+        classAvg,
+      };
+    });
+    const homeworks = formData.get('homeworkRangeSets').toJS().map((trs, i) => {
+      // 테스트 각각의 반평균 반석차 전체평균 전체석차
+      const intermediate = individual
+        .map(({ id, homeworkClasses: hcs, homeworkGrades: hgs }) => ({
+          id, cls: hcs[i], grade: hgs[i]
+        }))
+        .filter(({ grade }) => Number.isFinite(grade)); // NOTE: 점수가 숫자가 아닌 경우는 빼고 계산
+      const totalRank = _.chain(intermediate)
+        .sortBy(['grade'])
+        .reverse()
+        .map(({ id }) => id)
+        .value();
+      const totalAvg = _.chain(intermediate)
+        .map(({ grade }) => grade)
+        .sum()
+        .value() / intermediate.length;
+      const classIntermediate = intermediate
+        .reduce((acc, { id, cls, grade }) => {
+          acc[cls] = acc[cls] || []; // eslint-disable-line
+          acc[cls].push({ id, grade });
+          return acc;
+        }, {});
+      const classRank = _.transform(classIntermediate, (acc, arr, cls) => {
+        acc[cls] = _.chain(arr) // eslint-disable-line
+          .sortBy(({ grade }) => grade)
+          .reverse()
+          .map(({ id }) => id)
+          .value();
+        return acc;
+      }, {});
+      const classAvg = _.transform(classIntermediate, (acc, arr, cls) => {
+        acc[cls] = _.chain(arr) // eslint-disable-line
+          .map(({ grade }) => grade)
+          .sum()
+          .value() / arr.length;
+        return acc;
+      }, {});
+      return {
         totalRank,
         totalAvg,
         classRank,
         classAvg
       };
-    }).toJS();
-    const homeworks = formData.get('homeworkRangeSets').map(hr => {
-      const grades = rangeMap(
-        hr.get('fields').get('grade').get('range'),
-        ad => sheet[ad].v
-      );
-      const classes = rangeMap(
-        hr.get('fields').get('class').get('range'),
-        ad => sheet[ad].v
-      );
-      const individualGrade = _.zipObject(ids, grades);
-      // NOTE: 점수에 숫자가 아닌 것이 들어가는 것은 평균 및 순위 계산에서 제외
-      const statIntermediate = _.chain(ids)
-        .zip(grades, classes)
-        .map(([id, grade, cls]) => ({ id, grade: parseFloat(grade), cls }))
-        .filter(({ grade }) => !Number.isNaN(grade))
-        .value();
-      const totalAvg = _.chain(statIntermediate)
-        .map(({ grade }) => grade)
-        .thru(arr => _.sum(arr) / arr.length)
-        .value();
-      const classAvg = _.chain(statIntermediate)
-        .reduce((acc, { grade, cls }) => {
-          acc[cls] = acc[cls] || []; // eslint-disable-line
-          acc[cls].push(grade);
-          return acc;
-        }, {})
-        .transform((result, value, key) => {
-          result[key] = _.sum(value) / value.length; // eslint-disable-line
-        }, {})
-        .value();
-      return {
-        individualGrade,
-        totalAvg,
-        classAvg
-      };
-    }).toJS();
+    });
     dispatch({
       type: UPDATE_STAT,
       payload: {
-        classes: Array.from(Object.keys(classesMap)),
+        classes,
         individual,
         tests,
         homeworks,

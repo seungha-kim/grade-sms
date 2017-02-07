@@ -29,21 +29,20 @@ const chartColors = [
 
 export function render(stat, templateForm, exactIndex = null) {
   const index = exactIndex || templateForm.currentIndex;
-  const { id, name, school } = stat.individual[index];
+  const { id, name, school, testGrades, testClasses, homeworkGrades, homeworkClasses } = stat.individual[index];
   const { tests: testsStat, homeworks: homeworksStat } = stat;
   const { tests: testsForm, homeworks: homeworksForm } = templateForm;
   const testsData = testsStat.map(({
-    individualGrade,
-    individualClass,
     totalRank: totalRankArr,
     totalAvg,
     classRank: classRankAllObj,
     classAvg: classAvgAllObj
-  }, i) => {
-    const noGrade = !Number.isFinite(individualGrade[id]);
-    const gradeDisp = noGrade ? `<strong>${individualGrade[id]}</strong>` : individualGrade[id];
-    const grade = noGrade ? 0 : individualGrade[id];
-    const className = individualClass[id];
+  }, testIndex) => {
+    const grade = testGrades[testIndex];
+    const noGrade = !Number.isFinite(grade);
+    const gradeDisp = noGrade ? `<strong>${grade}</strong>` : grade;
+    const gradeNumeric = noGrade ? 0 : grade;
+    const className = testClasses[testIndex];
     const noClass = className === '0' || !className; // FIXME: 이 기준이 맞는 건가...
     const classAvg = noClass ? 0 : classAvgAllObj[className];
     const classAvgDisp = noClass ? '-' : classAvgAllObj[className].toFixed(2);
@@ -57,10 +56,10 @@ export function render(stat, templateForm, exactIndex = null) {
       totalRankArr.length
     ];
     return {
-      number: testsForm.get(i).number.value || `<시험 ${i + 1} 회차>`,
-      name: testsForm.get(i).name.value || `<시험 ${i + 1} 이름>`,
+      number: testsForm.get(testIndex).number.value || `<시험 ${testIndex + 1} 회차>`,
+      name: testsForm.get(testIndex).name.value || `<시험 ${testIndex + 1} 이름>`,
       gradeDisp,
-      grade,
+      gradeNumeric,
       className: noClass ? '-' : className,
       classAvg,
       classAvgDisp,
@@ -71,16 +70,16 @@ export function render(stat, templateForm, exactIndex = null) {
     };
   });
   const homeworksData = homeworksStat.map(({
-    individualGrade,
     totalAvg,
     classAvg: classAvgAllObj
-  }, i) => {
-    const noGrade = !Number.isFinite(individualGrade[id]);
-    const gradeDisp = noGrade ? `<strong>${individualGrade[id]}</strong>` : individualGrade[id].toFixed(2);
+  }, homeworkIndex) => {
+    const grade = homeworkGrades[homeworkIndex];
+    const noGrade = !Number.isFinite(grade);
+    const gradeDisp = noGrade ? `<strong>${grade}</strong>` : grade.toFixed(2);
     const classAvgAll = [['전체', totalAvg]].concat(Object.entries(classAvgAllObj));
     return {
-      number: homeworksForm.get(i).number.value || `<숙제 ${i + 1} 회차>`,
-      name: homeworksForm.get(i).name.value || `<숙제 ${i + 1} 이름>`,
+      number: homeworksForm.get(homeworkIndex).number.value || `<숙제 ${homeworkIndex + 1} 회차>`,
+      name: homeworksForm.get(homeworkIndex).name.value || `<숙제 ${homeworkIndex + 1} 이름>`,
       gradeDisp,
       classAvgAll,
       totalAvg
