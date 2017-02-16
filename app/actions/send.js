@@ -362,7 +362,7 @@ export function sendReports() {
     const recordFilePath = path.join(sourceDir, RESULT_RECORD_FILE_NAME);
     let successIds = new Set();
     if (fs.existsSync(recordFilePath)) {
-      dispatch(updateSendLog('-1', '발송 기록 파일이 존재합니다. 이미 성공한 건은 건너뛰고 실패했거나 아예 발송 기록이 없는 건에 대해 재시도합니다.'));
+      dispatch(updateSendLog('-1', '발송한 기록이 존재하는 폴더입니다. 이미 발송에 성공한 건은 건너뛰고, 실패했거나 발송한 적이 없는 건만 발송을 시작합니다.'));
       successIds = new Set(fs.readFileSync(recordFilePath, { encoding: 'utf-8' })
         .split('\n')
         .filter(l => l !== '')

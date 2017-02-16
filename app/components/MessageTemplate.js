@@ -54,7 +54,7 @@ export default class MessageTemplate extends Component {
         label="발송"
         primary
         onTouchTap={send}
-        disabled={cannotSend || templateString === '' || isError || testPhoneNumber === ''}
+        disabled={cannotSend || templateString === '' || isError || testPhoneNumber === '' || targetClass === undefined}
       />
     ];
     return (<Dialog
