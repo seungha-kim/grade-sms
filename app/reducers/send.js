@@ -12,11 +12,15 @@ export const UPDATE_TEST_PHONE_NUMBER = 'UPDATE_TEST_PHONE_NUMBER';
 export const DISABLE_SEND_BUTTON = 'DISABLE_SEND_BUTTON';
 export const COMPLETE_INDIVIDUAL_SEND = 'COMPLETE_INDIVIDUAL_SEND';
 export const UPDATE_TOTAL_COUNT = 'UPDATE_TOTAL_COUNT';
+export const UPDATE_TARGET_CLASS_LIST = 'UPDATE_TARGET_CLASS_LIST';
+export const UPDATE_TARGET_CLASS = 'UPDATE_TARGET_CLASS';
 
 type LogType = {
   id: string,
   text: string
 };
+
+type TargetClassList = Array<string>;
 
 export class State extends Record({
   sourceDir: null,
@@ -30,7 +34,10 @@ export class State extends Record({
   testPhoneNumber: '',
   cannotSend: false,
   sendCount: 0,
-  totalCount: null
+  totalCount: null,
+  targetClassList: null,
+  targetClass: undefined,
+  targetCount: 0
 }) {
   sourceDir: ?string;
   sourceDirErrorText: ?string;
@@ -44,6 +51,9 @@ export class State extends Record({
   cannotSend: boolean;
   sendCount: number;
   totalCount: ?number;
+  targetClassList: ?TargetClassList;
+  targetClass: ?string;
+  targetCount: number;
 }
 
 const initialState = new State();
@@ -75,6 +85,10 @@ export default function send(state: State = initialState, action: any) {
       return state.set('totalCount', payload);
     case INITIALIZE_SEND_STATE:
       return initialState;
+    case UPDATE_TARGET_CLASS_LIST:
+      return state.set('targetClassList', payload);
+    case UPDATE_TARGET_CLASS:
+      return state.set('targetClass', payload.targetClass).set('targetCount', payload.targetCount);
     default:
       return state;
   }

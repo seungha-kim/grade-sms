@@ -26,7 +26,9 @@ import {
   DISABLE_SEND_BUTTON,
   COMPLETE_INDIVIDUAL_SEND,
   UPDATE_TOTAL_COUNT,
-  INITIALIZE_SEND_STATE
+  INITIALIZE_SEND_STATE,
+  UPDATE_TARGET_CLASS_LIST,
+  UPDATE_TARGET_CLASS
 } from '../reducers/send';
 
 import {
@@ -38,6 +40,8 @@ import {
 
 const encoder = new TextEncoder('euc-kr', { NONSTANDARD_allowLegacyEncoding: true });
 let currentTimeout;
+let planData;
+let filteredPlanDataItems;
 
 function munjanaraEncoder(input) {
   return Buffer.from(encoder.encode(input))
@@ -110,17 +114,49 @@ export function showOpenDialog() {
       const [dir] = remote.dialog.showOpenDialog({ properties: ['openDirectory'] });
       const planPath = path.join(dir, PLAN_FILE_NAME);
       // 발송 계획 파일 구조 : `app/actions/generate.js` 참고
-      const parsed = JSON.parse(fs.readFileSync(planPath, { encoding: 'utf-8' }));
+      planData = JSON.parse(fs.readFileSync(planPath, { encoding: 'utf-8' }));
+      filteredPlanDataItems = planData.items;
       const files = fs.readdirSync(dir);
-      const matched = parsed.items.every(([, , , , fileName]) => files.includes(fileName));
+      const matched = planData.items.every(([, , , , , fileName]) => files.includes(fileName));
+      const allClasses = planData.items.reduce(
+        (acc, [, , , , lastClass]) => acc.add(lastClass),
+        new Set()
+      );
       if (matched) {
         dispatch(updateSourceDir(dir));
+        dispatch(updateTargetClassList(Array.from(allClasses)));
       } else {
         dispatch(updateSourceDirErrorText('성적표 폴더가 손상된 것 같습니다. 성적표를 다시 생성해주세요.'));
       }
     } catch (e) {
       dispatch(updateSourceDirErrorText(`입력된 폴더가 올바르지 않습니다 : ${e.toString()}`));
     }
+  };
+}
+
+export function updateTargetClassList(list) {
+  return {
+    type: UPDATE_TARGET_CLASS_LIST,
+    payload: list
+  };
+}
+
+export function updateTargetClass(cls, targetCount) {
+  return {
+    type: UPDATE_TARGET_CLASS,
+    payload: {
+      targetClass: cls,
+      targetCount
+    }
+  };
+}
+
+export function updateTargetClassAndCount(selectedClass) {
+  return (dispatch) => {
+    filteredPlanDataItems = selectedClass == null
+      ? planData.items
+      : planData.items.filter(([,,,, lastClass]) => lastClass === selectedClass);
+    dispatch(updateTargetClass(selectedClass, filteredPlanDataItems.length));
   };
 }
 
@@ -190,6 +226,7 @@ export function updateSendLog(id, text) {
 }
 
 export function sendMessage(receiver, text, callback) {
+  console.log(`sendMessage: ${receiver}, ${text}`);
   return (dispatch, getState) => {
     const { setting } = getState();
     const smsId = setting.munjanaraId.value;
@@ -225,10 +262,7 @@ export function sendReports() {
   return (dispatch, getState) => {
     const { send, setting } = getState();
     const sourceDir = send.sourceDir;
-    const planPath = path.join(sourceDir, PLAN_FILE_NAME);
-    // 발송 계획 파일 구조 : `app/actions/generate.js` 참고
-    const plan = JSON.parse(fs.readFileSync(planPath, { encoding: 'utf-8' }));
-    const totalCount = plan.items.length;
+    const totalCount = filteredPlanDataItems.length;
     const really = confirm(`총 ${totalCount} 명에게 메시지가 발송됩니다. 정말 발송하시겠습니까?`);
     if (!really) return;
     dispatch(updateTotalCount(totalCount));
@@ -251,9 +285,9 @@ export function sendReports() {
     const renderer = handlebars.compile(send.messageTemplateString);
 
     function process(item) {
-      const [id, name, school, phone, fileName] = item;
+      const [id, name, school, phone, lastClass, fileName] = item;  // eslint-disable-line
       const html = fs.readFileSync(path.join(sourceDir, fileName));
-      const s3LocalPath = `${plan.dt}/${fileName}`;
+      const s3LocalPath = `${planData.dt}/${fileName}`;
       const params = {
         Bucket: bucket,
         Body: html,
@@ -339,7 +373,7 @@ export function sendReports() {
 
     let i = 0;
     currentTimeout = setInterval(() => {
-      if (i >= plan.items.length) {
+      if (i >= filteredPlanDataItems.length) {
         clearInterval(currentTimeout);
         setTimeout(() => {
           dispatch(updateSendLog('-2', `\n발송이 완료되었습니다. 폴더에 발송 결과 파일(${LOG_FILE_NAME})이 생성되었습니다.`));
@@ -349,7 +383,7 @@ export function sendReports() {
       } else {
         while (true) {
           // NOTE: 동시성 문제가 있을 수 있으나... 위에서 별다른 부작용을 일으키지 않으므로 충분히 빠를 것으로 예상됨.
-          const item = plan.items[i];
+          const item = filteredPlanDataItems[i];
           if (item == null) break;
           const currentId = item[0];
           if (successIds.has(currentId)) {

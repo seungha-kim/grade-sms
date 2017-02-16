@@ -5,7 +5,8 @@ import MessageTemplate from '../components/MessageTemplate';
 import {
   renderExampleMessage,
   updateTestPhoneNumber,
-  smsTestAndSend
+  smsTestAndSend,
+  updateTargetClassAndCount
 } from '../actions/send';
 import {
   closeMessageTemplate
@@ -19,7 +20,10 @@ function mapStateToProps({ subPage, send }) {
     renderedExampleMessage: send.renderedExampleMessage,
     exampleBytes: send.exampleBytes,
     testPhoneNumber: send.testPhoneNumber,
-    cannotSend: send.cannotSend
+    cannotSend: send.cannotSend,
+    targetClassList: send.targetClassList,
+    targetClass: send.targetClass,
+    targetCount: send.targetCount
   };
 }
 
@@ -28,7 +32,8 @@ function mapDispatchToProps(dispatch) {
     close: closeMessageTemplate,
     send: smsTestAndSend,
     renderExampleMessage,
-    updateTestPhoneNumber
+    updateTestPhoneNumber,
+    onTargetClassChanged: updateTargetClassAndCount
   }, dispatch);
 }
 

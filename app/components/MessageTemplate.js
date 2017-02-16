@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import Dialog from 'material-ui/Dialog';
 import FlatButton from 'material-ui/FlatButton';
 import TextField from 'material-ui/TextField';
+import SelectField from 'material-ui/SelectField';
+import MenuItem from 'material-ui/MenuItem';
 import HelpText from './HelpText';
 
 type Props = {
@@ -15,7 +17,11 @@ type Props = {
   exampleBytes: number,
   testPhoneNumber: string,
   updateTestPhoneNumber: (string) => void,
-  cannotSend: boolean
+  cannotSend: boolean,
+  targetClassList: ?Array<string>,
+  targetClass: ?string,
+  onTargetClassChanged: (?string) => void,
+  targetCount: number
 };
 
 export default class MessageTemplate extends Component {
@@ -32,7 +38,11 @@ export default class MessageTemplate extends Component {
       exampleBytes,
       testPhoneNumber,
       updateTestPhoneNumber,
-      cannotSend
+      cannotSend,
+      targetClassList,
+      targetClass,
+      onTargetClassChanged,
+      targetCount
     } = this.props;
     const actions = [
       <FlatButton
@@ -48,7 +58,7 @@ export default class MessageTemplate extends Component {
       />
     ];
     return (<Dialog
-      title="메시지 내용 작성"
+      title="메시지 발송 설정"
       open={open}
       modal
       actions={actions}
@@ -78,6 +88,25 @@ export default class MessageTemplate extends Component {
           </div>
           <div style={{ marginTop: '10px', textAlign: 'right' }}>{exampleBytes} Bytes { exampleBytes <= 90 ? '단문 (건당 30원)' : '장문 (건당 50원)'}</div>
         </div>
+      </div>
+      <div style={{ marginTop: '50px' }}>
+        <HelpText>
+          성적표를 발송할 반을 선택합니다. <br />
+          마지막 시험의 반을 기준으로 필터링됩니다.
+        </HelpText>
+        <SelectField
+          floatingLabelText="발송 대상 반"
+          floatingLabelFixed
+          value={targetClass}
+          onChange={(e, i, v) => onTargetClassChanged(v)}
+        >
+          <MenuItem key={null} value={null} primaryText="전체" />
+          {
+            targetClassList &&
+            targetClassList.map(tc => <MenuItem key={tc} value={tc} primaryText={tc.toString()} />)
+          }
+        </SelectField>
+        <div>총 {targetCount}명</div>
       </div>
       <div style={{ marginTop: '50px' }}>
         <HelpText>

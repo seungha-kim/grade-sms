@@ -53,13 +53,13 @@ export function render(stat, templateForm, exactIndex = null) {
     const gradeDisp = noGrade ? `<strong>${grade}</strong>` : grade;
     const gradeNumeric = noGrade ? 0 : grade;
     const className = testClasses[testIndex];
-    const noClass = className === '0' || !className; // FIXME: 이 기준이 맞는 건가...
-    const classAvg = noClass ? 0 : classAvgAllObj[className];
-    const classAvgDisp = noClass ? '-' : classAvgAllObj[className].toFixed(2);
+    const noClassAvg = !className || !classAvgAllObj[className];
+    const classAvg = noClassAvg ? 0 : classAvgAllObj[className];
+    const classAvgDisp = noClassAvg ? '-' : classAvgAllObj[className].toFixed(2);
     const classAvgAll = [['전체', totalAvg]].concat(Object.entries(classAvgAllObj));
     const classRank = [
       classTestRanks[testIndex],
-      noClass ? '-' : classRankAllObj[className].length
+      noClassAvg ? '-' : classRankAllObj[className].length
     ];
     const totalRank = [
       totalTestRanks[testIndex],
@@ -70,7 +70,7 @@ export function render(stat, templateForm, exactIndex = null) {
       name: testsForm.get(testIndex).name.value || `<시험 ${testIndex + 1} 이름>`,
       gradeDisp,
       gradeNumeric,
-      className: noClass ? '-' : className,
+      className: noClassAvg ? '-' : className,
       classAvg,
       classAvgDisp,
       classAvgAll,

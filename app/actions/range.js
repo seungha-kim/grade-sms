@@ -461,11 +461,6 @@ export function calculateStat() {
           id, cls: hcs[i], grade: hgs[i]
         }))
         .filter(({ grade }) => Number.isFinite(grade)); // NOTE: 점수가 숫자가 아닌 경우는 빼고 계산
-      const totalRank = _.chain(intermediate)
-        .sortBy(['grade'])
-        .reverse()
-        .map(({ id }) => id)
-        .value();
       const totalAvg = _.chain(intermediate)
         .map(({ grade }) => grade)
         .sum()
@@ -476,14 +471,6 @@ export function calculateStat() {
           acc[cls].push({ id, grade });
           return acc;
         }, {});
-      const classRank = _.transform(classIntermediate, (acc, arr, cls) => {
-        acc[cls] = _.chain(arr) // eslint-disable-line
-          .sortBy(({ grade }) => grade)
-          .reverse()
-          .map(({ id }) => id)
-          .value();
-        return acc;
-      }, {});
       const classAvg = _.transform(classIntermediate, (acc, arr, cls) => {
         acc[cls] = _.chain(arr) // eslint-disable-line
           .map(({ grade }) => grade)
@@ -492,9 +479,7 @@ export function calculateStat() {
         return acc;
       }, {});
       return {
-        totalRank,
         totalAvg,
-        classRank,
         classAvg
       };
     });
