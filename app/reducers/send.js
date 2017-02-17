@@ -10,6 +10,7 @@ export const UPDATE_SEND_LOG = 'UPDATE_SEND_LOG';
 export const DONE = 'DONE';
 export const UPDATE_TEST_PHONE_NUMBER = 'UPDATE_TEST_PHONE_NUMBER';
 export const DISABLE_SEND_BUTTON = 'DISABLE_SEND_BUTTON';
+export const ENABLE_SEND_BUTTON = 'ENABLE_SEND_BUTTON';
 export const COMPLETE_INDIVIDUAL_SEND = 'COMPLETE_INDIVIDUAL_SEND';
 export const UPDATE_TOTAL_COUNT = 'UPDATE_TOTAL_COUNT';
 export const UPDATE_TARGET_CLASS_LIST = 'UPDATE_TARGET_CLASS_LIST';
@@ -79,6 +80,8 @@ export default function send(state: State = initialState, action: any) {
       return state.set('testPhoneNumber', payload);
     case DISABLE_SEND_BUTTON:
       return state.set('cannotSend', true);
+    case ENABLE_SEND_BUTTON:
+      return state.set('cannotSend', false);
     case COMPLETE_INDIVIDUAL_SEND:
       return state.update('sendCount', c => c + 1);
     case UPDATE_TOTAL_COUNT:

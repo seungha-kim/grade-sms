@@ -24,6 +24,7 @@ import {
   DONE,
   UPDATE_TEST_PHONE_NUMBER,
   DISABLE_SEND_BUTTON,
+  ENABLE_SEND_BUTTON,
   COMPLETE_INDIVIDUAL_SEND,
   UPDATE_TOTAL_COUNT,
   INITIALIZE_SEND_STATE,
@@ -233,18 +234,18 @@ export function sendMessage(receiver, text, callback) {
     const smsPasswd = setting.munjanaraPassword.value;
     const sender = setting.senderPhoneNumber.value;
     axios
-      .get('https://www.munjanara.co.kr/MSG/send/web_admin_send.htm', {
+      .get(`https://www.munjanara.co.kr/MSG/send/web_admin_send.htm?message=${munjanaraEncoder(text)}`, {
         params: {
           userid: smsId,
           passwd: smsPasswd,
           sender: sender.replace(/[^0-9]/g, ''),
           receiver: receiver.replace(/[^0-9]/g, ''),
           encode: 1,
-          message: munjanaraEncoder(text),
           allow_mms: 1
         }
       })
       .then(res => {
+        console.log(res);
         // 결과값|유료잔액|전송수|예약유무|전달값
         const [result, remain] = res.data.split('|');
         checkSmsError(result);
@@ -413,6 +414,12 @@ export function disableSendButton() {
   };
 }
 
+export function enableSendButton() {
+  return {
+    type: ENABLE_SEND_BUTTON
+  };
+}
+
 export function smsTestAndSend() {
   const testString = '한글, English, 1234';
   return (dispatch, getState) => {
@@ -428,6 +435,8 @@ export function smsTestAndSend() {
           dispatch(closeMessageTemplate());
           dispatch(openSendPage());
           dispatch(sendReports());
+        } else {
+          dispatch(enableSendButton());
         }
       }
     }));
