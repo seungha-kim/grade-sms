@@ -285,25 +285,29 @@ export function sendReports() {
     });
     const renderer = handlebars.compile(send.messageTemplateString);
 
-    function process(item) {
-      const [id, name, school, phone, lastClass, fileName] = item;  // eslint-disable-line
-      const html = fs.readFileSync(path.join(sourceDir, fileName));
-      const s3LocalPath = `${planData.dt}/${fileName}`;
+    function uploadFile(localPath, body, plain = false) {
       const params = {
         Bucket: bucket,
-        Body: html,
-        Key: s3LocalPath,
+        Body: body,
+        Key: localPath,
         ACL: 'public-read',
-        ContentType: 'text/html',
+        ContentType: plain ? 'text/plan' : 'text/html',
         Expires: addYears(new Date(), 1)
       };
-      // HTML 파일 업로드
-      new Promise((resolve, reject) => {
+      return new Promise((resolve, reject) => {
         s3.putObject(params, err => {
           if (err) reject(new UploadError(err.toString()));
           else resolve();
         });
-      })
+      });
+    }
+
+    function process(item) {
+      const [id, name, school, phone, lastClass, fileName] = item;  // eslint-disable-line
+      const html = fs.readFileSync(path.join(sourceDir, fileName));
+      const s3LocalPath = `${planData.dt}/${fileName}`;
+      // HTML 파일 업로드
+      uploadFile(s3LocalPath, html)
       // URL 생성
       .then(() => axios
         .post(`https://www.googleapis.com/urlshortener/v1/url?key=${googleKey}`, {
@@ -376,12 +380,34 @@ export function sendReports() {
     currentTimeout = setInterval(() => {
       if (i >= filteredPlanDataItems.length) {
         clearInterval(currentTimeout);
+        // 로그 파일 업로드 - 실패에 대해 처리하지 않은 것은 의도적인 것임
+        uploadFile(
+          `${planData.dt}/${PLAN_FILE_NAME}`,
+          fs.readFileSync(path.join(sourceDir, PLAN_FILE_NAME), { encoding: 'utf-8' }),
+          true
+        );
+        uploadFile(
+          `${planData.dt}/${RESULT_RECORD_FILE_NAME}`,
+          fs.readFileSync(path.join(sourceDir, RESULT_RECORD_FILE_NAME), { encoding: 'utf-8' }),
+          true
+        );
+        uploadFile(
+          `${planData.dt}/${LOG_FILE_NAME}`,
+          fs.readFileSync(path.join(sourceDir, LOG_FILE_NAME), { encoding: 'utf-8' }),
+          true
+        );
+        uploadFile(
+          `${planData.dt}/${MESSAGE_TEMPLATE_FILE_NAME}`,
+          fs.readFileSync(path.join(sourceDir, MESSAGE_TEMPLATE_FILE_NAME), { encoding: 'utf-8' }),
+          true
+        );
         setTimeout(() => {
           dispatch(updateSendLog('-2', `\n발송이 완료되었습니다. 폴더에 발송 결과 파일(${LOG_FILE_NAME})이 생성되었습니다.`));
           dispatch(updateSendLog('-3', '\n발송 시에 오류가 없었다고 하더라도, 통신사 자체 *스팸 필터*에 의해 메시지가 학부모 휴대폰에 도착하지 않을 가능성이 있습니다. 그런 경우에는 발송 결과 파일을 참고해서 성적표 URL을 학생에게 직접 가르쳐 주거나, 성적표를 직접 인쇄해서 배부할 수 있습니다. 또한 알 수 없는 오류에 생겼을 때 개발자에게 발송 결과 파일을 보내어 문제를 해결할 수도 있습니다.'));
           dispatch({ type: DONE });
         }, 3000);
       } else {
+        // 성공 건은 건너뛰기 위해 루프
         while (true) {
           // NOTE: 동시성 문제가 있을 수 있으나... 위에서 별다른 부작용을 일으키지 않으므로 충분히 빠를 것으로 예상됨.
           const item = filteredPlanDataItems[i];
@@ -455,6 +481,7 @@ export function updateTotalCount(payload) {
     payload
   };
 }
+
 export function cancelSendingReports() {
   return (dispatch) => {
     clearInterval(currentTimeout);
