@@ -66,8 +66,8 @@ export function render(stat, templateForm, exactIndex = null) {
       totalRankArr.length
     ];
     return {
-      number: testsForm.get(testIndex).number.value || `<시험 ${testIndex + 1} 회차>`,
-      name: testsForm.get(testIndex).name.value || `<시험 ${testIndex + 1} 이름>`,
+      number: testsForm.get(testIndex).number.value || `<시험 ${testIndex + 1} 긴 제목>`,
+      name: testsForm.get(testIndex).name.value || `<시험 ${testIndex + 1} 짧은 제목>`,
       gradeDisp,
       gradeNumeric,
       className: noClassAvg ? '-' : className,

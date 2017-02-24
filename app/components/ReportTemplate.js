@@ -109,13 +109,13 @@ export default class ReportTemplate extends Component {
             <CardText className={s.textFields}>
               {templateForm.tests.map((ts, i) => (<div key={ts.setKey}>
                 <TextField
-                  floatingLabelText={`시험 ${i + 1} 회차*`}
+                  floatingLabelText={`시험 ${i + 1} 긴 제목*`}
                   style={{ width: '100%' }}
                   value={ts.number.value}
                   onChange={this.onFieldChange(ts.number.fieldKey)}
                 />
                 <TextField
-                  floatingLabelText={`시험 ${i + 1} 이름*`}
+                  floatingLabelText={`시험 ${i + 1} 짧은 제목*`}
                   style={{ width: '100%' }}
                   value={ts.name.value}
                   onChange={this.onFieldChange(ts.name.fieldKey)}
