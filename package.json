@@ -153,7 +153,6 @@
     "electron-debug": "^1.1.0",
     "font-awesome": "^4.7.0",
     "handlebars": "^4.0.6",
-    "iconv": "^2.2.1",
     "immutable": "^3.8.1",
     "lodash": "^4.17.4",
     "lodash.debounce": "^4.0.8",
