@@ -271,7 +271,7 @@ export function sendReports() {
     const messageTemplateFilePath = path.join(sourceDir, MESSAGE_TEMPLATE_FILE_NAME);
     fs.writeFileSync(messageTemplateFilePath, send.messageTemplateString);
 
-    const googleKey = setting.googleApiKey.value;
+    const urloAccessKey = setting.urloAccessKey.value;
     const bucket = setting.s3Bucket.value;
     const region = 'ap-northeast-2';
     const host = `https://s3.${region}.amazonaws.com`;
@@ -310,10 +310,11 @@ export function sendReports() {
       uploadFile(s3LocalPath, html)
       // URL 생성
       .then(() => axios
-        .post(`https://www.googleapis.com/urlshortener/v1/url?key=${googleKey}`, {
-          longUrl: `${host}/${bucket}/${s3LocalPath}`
+        .post('https://urlo.cc', {
+          access_key: urloAccessKey,
+          url: `${host}/${bucket}/${s3LocalPath}`
         })
-        .then(({ data: { id: shortUrl } }) => shortUrl)
+        .then(({ data: { id } }) => `https://urlo.cc/?u=${id}`)
         .catch(err => {
           throw new UrlError(err.toString());
         }))
@@ -423,7 +424,7 @@ export function sendReports() {
           }
         }
       }
-    }, 1111);
+    }, 300);
   };
 }
 

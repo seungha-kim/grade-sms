@@ -21,7 +21,7 @@ export class SettingState extends Record({
   s3Bucket: new Field(),
   accessKeyId: new Field(),
   secretAccessKey: new Field(),
-  googleApiKey: new Field(),
+  urloAccessKey: new Field(),
   munjanaraId: new Field(),
   munjanaraPassword: new Field(),
   senderPhoneNumber: new Field(),
@@ -30,7 +30,7 @@ export class SettingState extends Record({
   s3Bucket: Field;
   accessKeyId: Field;
   secretAccessKey: Field;
-  googleApiKey: Field;
+  urloAccessKey: Field;
   munjanaraId: Field;
   munjanaraPassword: Field;
   senderPhoneNumber: Field;
@@ -40,7 +40,7 @@ export class SettingState extends Record({
       this.s3Bucket.valid()
       && this.accessKeyId.valid()
       && this.secretAccessKey.valid()
-      && this.googleApiKey.valid()
+      && this.urloAccessKey.valid()
       && this.munjanaraId.valid()
       && this.munjanaraPassword.valid()
       && this.senderPhoneNumber.valid()

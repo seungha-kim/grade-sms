@@ -62,10 +62,10 @@ export default class Setting extends Component {
         />
         <TextField
           disabled={setting.loading}
-          floatingLabelText="Google API key"
-          value={setting.googleApiKey.value || ''}
-          errorText={setting.googleApiKey.errorText}
-          onChange={e => updateField('googleApiKey', e.target.value)}
+          floatingLabelText="URLO Access Key"
+          value={setting.urloAccessKey.value || ''}
+          errorText={setting.urloAccessKey.errorText}
+          onChange={e => updateField('urloAccessKey', e.target.value)}
         />
         <TextField
           disabled={setting.loading}

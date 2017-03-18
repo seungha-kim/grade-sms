@@ -27,7 +27,7 @@ export function validateSetting() {
       s3Bucket: null,
       accessKeyId: null,
       secretAccessKey: null,
-      googleApiKey: null,
+      urloAccessKey: null,
       munjanaraId: null,
       munjanaraPassword: null,
       senderPhoneNumber: null
@@ -53,15 +53,14 @@ export function validateSetting() {
           resolve();
         });
       }),
-      // google
-      axios.get('https://www.googleapis.com/urlshortener/v1/url', {
+      // URLO
+      axios.get('https://urlo.cc/auth', {
         params: {
-          shortUrl: 'http://goo.gl/fbsS',
-          key: setting.googleApiKey.value
+          access_key: setting.urloAccessKey.value // FIXME
         }
       }).catch(() => {
         const ERROR_TEXT = '값이 올바르지 않습니다.';
-        result.googleApiKey = ERROR_TEXT;
+        result.urloAccessKey = ERROR_TEXT;
       }),
       // 문자나라
       axios.get('https://www.munjanara.co.kr/MSG/send/web_admin_send.htm', {
@@ -99,7 +98,7 @@ export function saveSetting() {
           s3Bucket: setting.s3Bucket.value,
           accessKeyId: setting.accessKeyId.value,
           secretAccessKey: setting.secretAccessKey.value,
-          googleApiKey: setting.googleApiKey.value,
+          urloAccessKey: setting.urloAccessKey.value,
           munjanaraId: setting.munjanaraId.value,
           munjanaraPassword: setting.munjanaraPassword.value,
           senderPhoneNumber: setting.senderPhoneNumber.value
@@ -131,7 +130,7 @@ type SavedSetting = {
   s3Bucket: ?string,
   accessKeyId: ?string,
   secretAccessKey: ?string,
-  googleApiKey: ?string,
+  urloAccessKey: ?string,
   munjanaraId: ?string,
   munjanaraPassword: ?string
 };
@@ -160,7 +159,7 @@ type ErrorTexts = {
   s3Bucket: ?string,
   accessKeyId: ?string,
   secretAccessKey: ?string,
-  googleApiKey: ?string,
+  urloAccessKey: ?string,
   munjanaraId: ?string,
   munjanaraPassword: ?string
 };

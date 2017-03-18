@@ -54,7 +54,7 @@ export default class Send extends Component {
         onTouchTap={close}
       />
     ];
-    const remain = (total == null) ? '-' : `${(1.111 * (total - count) * 0.016).toFixed(0)}분`;
+    const remain = (total == null) ? '-' : `${(0.3 * (total - count) / 60).toFixed(0)}분`;
     return (<Dialog
       title="성적표 발송"
       open={open}
